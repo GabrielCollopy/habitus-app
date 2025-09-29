@@ -3,25 +3,29 @@ import { View, StyleSheet } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import ReceitasList from '../components/Receitas/ReceitasList';
 import CustomButton from '../components/Global/CustomButton';
+import { COLORS } from '../constants/Colors';
 
 const ReceitasScreen = () => {
-    const [atualizarLista, setAtualizarLista] = useState(false);
     const navigation = useNavigation();
-
     const isFocused = useIsFocused();
+    const [refreshTrigger, setRefreshTrigger] = useState(false);
+
     useEffect(() => {
         if (isFocused) {
-            setAtualizarLista(prev => !prev);
+            setRefreshTrigger(prev => !prev);
         }
     }, [isFocused]);
 
+
     return (
         <View style={styles.container}>
-            <CustomButton
-                title="Adicionar Receita"
-                onPress={() => navigation.navigate('ReceitasForm')}
-            />
-            <ReceitasList atualizar={atualizarLista} />
+            <View style={styles.buttonWrapper}>
+                <CustomButton
+                    title="Adicionar Receita"
+                    onPress={() => navigation.navigate('ReceitasForm')}
+                />
+            </View>
+            <ReceitasList refreshTrigger={refreshTrigger} /> 
         </View>
     );
 };
@@ -29,8 +33,12 @@ const ReceitasScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
-        backgroundColor: '#fff',
+        backgroundColor: COLORS.background,
+    },
+    buttonWrapper: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        backgroundColor: COLORS.background,
     },
 });
 

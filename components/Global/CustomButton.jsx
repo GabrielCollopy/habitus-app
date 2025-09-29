@@ -1,27 +1,34 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import styled from 'styled-components/native';
 
-export default function CustomButton({ title, onPress }) {
+const Container = styled.TouchableOpacity`
+  background-color: ${props => props.disabled ? "#A5D6A7" : "#4CAF50"};
+  padding: 12px 20px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  margin-bottom: 10px;
+`;
+
+const ButtonText = styled.Text`
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+`;
+
+const Button = ({ title, onPress, disabled = false, style }) => {
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Text style={styles.text}>{title}</Text>
-    </TouchableOpacity>
-  );
+    <Container
+      onPress={onPress}
+      activeOpacity={0.7}
+      style={style}
+      disabled={disabled}
+    >
+      <ButtonText>{title}</ButtonText>
+    </Container>
+  )
 }
 
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#113d11c4',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  text: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-});
+export default Button;

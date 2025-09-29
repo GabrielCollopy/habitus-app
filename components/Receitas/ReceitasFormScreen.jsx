@@ -1,117 +1,97 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { Alert, View } from 'react-native';
 import { postReceita, updateReceita } from '../../services/ReceitasService';
 import CustomButton from '../Global/CustomButton';
+import CustomTextInput from '../Global/CustomTextInput';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'; // Novo import
+import styled from 'styled-components/native';
 
-const ReceitasFormScreen = ({ route, navigation}) => {
+const FormContainer = styled.View`
+    margin: 24px;
+    margin-top: 50px; /* Ajuste para espaçamento superior */
+    background-color: #005c0c69; 
+    border-radius: 16px;
+    padding: 16px;
+    justify-content: center;
+`;
+
+const ReceitasFormScreen = ({ route, navigation }) => {
     const receitaExistente = route.params?.receita;
+    const isEditing = !!receitaExistente;
 
     const [nome, setNome] = useState(receitaExistente?.nome || '');
     const [etapas, setEtapas] = useState(receitaExistente?.etapas || '');
     const [ingredientes, setIngredientes] = useState(receitaExistente?.ingredientes || '');
     const [link, setLink] = useState(receitaExistente?.link || '');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async () => {
+        setIsLoading(true);
         try {
-            if (receitaExistente) {
+            if (isEditing) {
                 await updateReceita(Number(receitaExistente.id), { nome, etapas, ingredientes, link });
-                setNome('');
-                setEtapas('');
-                setIngredientes('');
-                setLink('');
                 Alert.alert("Sucesso", "Receita atualizada com sucesso!");
             } else {
                 await postReceita({ nome, etapas, ingredientes, link });
-                setNome('');
-                setEtapas('');
-                setIngredientes('');
-                setLink('');
                 Alert.alert("Sucesso", "Receita criada com sucesso!");
             }
+            setNome(''); setEtapas(''); setIngredientes(''); setLink('');
             navigation.goBack();
         } catch (err) {
             console.error("Erro ao criar receita:", err);
             Alert.alert("Erro", "Não foi possível criar a receita.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <View style={styles.form}>
-            <Text style={styles.label}>Nome:</Text>
-            <TextInput
-                style={styles.input}
-                value={nome}
-                onChangeText={setNome}
-                placeholder="Nome da receita"
-                placeholderTextColor='#ffffffff'
-            />
-            <Text style={styles.label}>Etapas:</Text>
-            <TextInput
-                style={styles.textarea}
-                value={etapas}
-                onChangeText={setEtapas}
-                placeholder="Descreva as etapas"
-                placeholderTextColor='#ffffffff'
-                multiline
-            />
-            <Text style={styles.label}>Ingredientes:</Text>
-            <TextInput
-                style={styles.textarea}
-                value={ingredientes}
-                onChangeText={setIngredientes}
-                placeholder="Liste os ingredientes"
-                placeholderTextColor='#ffffffff'
-                multiline
-            />
-            <Text style={styles.label}>Link:</Text>
-            <TextInput
-                style={styles.input}
-                value={link}
-                onChangeText={setLink}
-                placeholder="Link (opcional)"
-                placeholderTextColor='#ffffffff'
-                keyboardType="url"
-            />
-            <CustomButton title="Adicionar Receita" onPress={handleSubmit} />
-        </View>
+        <KeyboardAwareScrollView
+            style={{ flex: 1, backgroundColor: 'transparent' }}
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <FormContainer>
+                <CustomTextInput
+                    label="Nome:"
+                    value={nome}
+                    onChangeText={setNome}
+                    placeholder="Nome da receita"
+                />
+
+                <CustomTextInput
+                    label="Etapas:"
+                    value={etapas}
+                    onChangeText={setEtapas}
+                    placeholder="Descreva as etapas"
+                    multiline
+                />
+
+                <CustomTextInput
+                    label="Ingredientes:"
+                    value={ingredientes}
+                    onChangeText={setIngredientes}
+                    placeholder="Liste os ingredientes"
+                    multiline
+                />
+
+                <CustomTextInput
+                    label="Link:"
+                    value={link}
+                    onChangeText={setLink}
+                    placeholder="Link (opcional)"
+                    keyboardType="url"
+                />
+
+                <CustomButton
+                    title={isEditing ? "Salvar Edição" : "Adicionar Receita"}
+                    onPress={handleSubmit}
+                    disabled={isLoading}
+                />
+            </FormContainer>
+        </KeyboardAwareScrollView>
+
     );
 };
-
-
-const styles = StyleSheet.create({
-    form: {
-        margin: 24,
-        marginTop: 100,
-        alignContent: 'center',
-        backgroundColor: '#005c0c69',
-        borderRadius: 16,
-        padding: 16,
-    },
-    label: {
-        fontWeight: 'bold',
-        margin: 8,
-        color: '#ffffffff',
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ffffffff',
-        borderRadius: 4,
-        padding: 8,
-        margin: 8,
-    },
-    textarea: {
-        borderWidth: 1,
-        borderColor: '#ffffffff',
-        borderRadius: 4,
-        padding: 8,
-        margin: 8,
-        minHeight: 60,
-        textAlignVertical: 'top',
-    },
-    placeholder: {
-        color: '#ffffffa1',
-    }
-});
 
 export default ReceitasFormScreen;

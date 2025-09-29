@@ -1,0 +1,18 @@
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import InitialScreen from "../screens/InitialScreen";
+import BottomNavigator from "../components/Global/BottomNavigator";
+
+const Stack = createNativeStackNavigator();
+
+export default function AppNavigator() {
+    return (
+        <Stack.Navigator
+            screenOptions={{ headerShown: false }}
+            initialRouteName="Initial"
+        >
+            <Stack.Screen name="Initial" component={InitialScreen} />
+            <Stack.Screen name="AppContent" component={BottomNavigator} />
+        </Stack.Navigator>
+    )
+}

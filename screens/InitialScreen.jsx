@@ -48,6 +48,7 @@ const ScreenContainer = styled.SafeAreaView`
 
 const LogoArea = styled.View`
   align-items: center;
+  justify-content: center;
   margin-bottom: 40px;
 `;
 
@@ -62,6 +63,7 @@ const Tagline = styled.Text`
   font-size: 16px;
   color: ${COLORS.accent};
   margin-bottom: 30px;
+  text-align: center;
 `;
 
 const ButtonGroup = styled.View`
@@ -79,6 +81,10 @@ export default function InitialScreen() {
         // Assumindo que sua tela de receitas é 'Receitas' (que é a tela dentro do ReceitasStack)
         navigation.navigate('AppContent');
     };
+
+    const navigateToRegister = () => {
+      navigation.navigate('Cadastro');
+    }
 
     return (
         <ScreenContainer>
@@ -103,7 +109,7 @@ export default function InitialScreen() {
                 {/* Botão Secundário: Criar Conta (Navega para a tela de receitas temporariamente) */}
                 <CustomButton 
                     title="Criar Conta" 
-                    onPress={navigateToApp} 
+                    onPress={navigateToRegister} 
                     secondary 
                 />
             </ButtonGroup>

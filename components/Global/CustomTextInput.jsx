@@ -34,7 +34,7 @@ const CustomTextInput = ({ label, multiline, ...props}) => {
                 {...props}
                 multiline={isMultiline}
                 style={isMultiline ? {minHeight: 100, textAlignVertical: 'top'} : {}}
-                placeholderTextColor="C8E6C9"
+                placeholderTextColor="#C8E6C9"
             />
         </StyledTextInputContainer>
     );

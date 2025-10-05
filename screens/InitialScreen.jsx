@@ -86,6 +86,10 @@ export default function InitialScreen() {
       navigation.navigate('Cadastro');
     }
 
+    const navigateToLogin = () => {
+      navigation.navigate('Login');
+    }
+
     return (
         <ScreenContainer>
             <LogoArea>
@@ -103,7 +107,7 @@ export default function InitialScreen() {
                 {/* Botão Principal: Entrar (Navega para a tela de receitas temporariamente) */}
                 <CustomButton 
                     title="Entrar" 
-                    onPress={navigateToApp} 
+                    onPress={navigateToLogin} 
                 />
 
                 {/* Botão Secundário: Criar Conta (Navega para a tela de receitas temporariamente) */}

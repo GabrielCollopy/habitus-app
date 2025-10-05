@@ -21,6 +21,16 @@ export async function createUser(user) {
     }
 }
 
+export async function updateUser(userId, user) {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/api/user/${userId}`, user);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao atualizar usuário:", error);
+        throw error;
+    }
+}
+
 export async function deleteUser(userId) {
     try {
         const response = await axios.delete(`${API_BASE_URL}/api/user/${userId}`);

@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ReceitasStack from '../../navigation/ReceitasStack';
+import UserStack from '../../navigation/UserStack';
 import { COLORS } from '../../constants/Colors';
 
 const Tab = createBottomTabNavigator();
@@ -23,6 +24,10 @@ export default function BottomNavigator() {
                     if (route.name === 'Receitas') {
                         iconName = 'restaurant-outline';
                     }
+                    if (route.name === 'Detalhes do Usuário') {
+                        iconName = 'person-circle-outline';
+                    }
+                    
 
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
@@ -32,6 +37,13 @@ export default function BottomNavigator() {
                 component={ReceitasStack}
                 options={{
                     tabBarLabel: 'Receitas',
+                }}
+            />
+            <Tab.Screen
+                name="Detalhes do Usuário"
+                component={UserStack}
+                options={{
+                    tabBarLabel: 'Meu Perfil',
                 }}
             />
         </Tab.Navigator>

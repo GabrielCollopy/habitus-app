@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ReceitasStack from '../../navigation/ReceitasStack';
 import UserStack from '../../navigation/UserStack';
 import { COLORS } from '../../constants/Colors';
+import MetasScreen from '../../screens/MetasScreen';
+import MetasStack from '../../navigation/MetasStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,6 +29,8 @@ export default function BottomNavigator() {
                     if (route.name === 'Detalhes do Usuário') {
                         iconName = 'person-circle-outline';
                     }
+                    if (route.name === 'Metas')
+                        iconName = 'clipboard'
                     
 
                     return <Ionicons name={iconName} size={size} color={color} />;
@@ -44,6 +48,13 @@ export default function BottomNavigator() {
                 component={UserStack}
                 options={{
                     tabBarLabel: 'Meu Perfil',
+                }}
+            />
+            <Tab.Screen
+                name="Metas"
+                component={MetasStack}
+                options={{
+                    tabBarLabel: 'Metas',
                 }}
             />
         </Tab.Navigator>

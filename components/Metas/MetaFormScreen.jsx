@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, Text, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Button from '../Global/CustomButton';
 import { COLORS } from '../../constants/Colors';
+// Importe as funções do seu service
+import { createMeta, updateMeta } from '../../services/MetasService';
 
 export const MetaStatus = Object.freeze({
   CONCLUIDO: 'Concluído',
@@ -10,15 +11,13 @@ export const MetaStatus = Object.freeze({
   NAO_INICIADO: 'Não Iniciado',
 });
 
-const STORAGE_KEY = '@metas';
-
 const MetaFormScreen = ({ navigation, route }) => {
-  const editing = route.params?.meta;
-  const indexToEdit = route.params?.index;
+  // A meta a ser editada (incluindo o id) vem via route.params
+  const editingMeta = route.params?.meta;
 
-  const [nome, setNome] = useState(editing ? editing.nome : '');
-  const [descricao, setDescricao] = useState(editing ? editing.descricao : '');
-  const [status, setStatus] = useState(editing ? editing.status : MetaStatus.NAO_INICIADO);
+  const [nome, setNome] = useState(editingMeta ? editingMeta.nome : '');
+  const [descricao, setDescricao] = useState(editingMeta ? editingMeta.descricao : '');
+  const [status, setStatus] = useState(editingMeta ? editingMeta.status : MetaStatus.NAO_INICIADO);
 
   const handleSave = async () => {
     if (!nome.trim() || !descricao.trim()) {
@@ -26,22 +25,23 @@ const MetaFormScreen = ({ navigation, route }) => {
       return;
     }
 
+    const metaData = { nome, descricao, status };
+
     try {
-      const saved = await AsyncStorage.getItem(STORAGE_KEY);
-      let metas = saved ? JSON.parse(saved) : [];
-
-      if (editing) {
-        metas[indexToEdit] = { nome, descricao, status };
-        Alert.alert('Meta Editada', 'Sua meta foi atualizada com sucesso!');
+      if (editingMeta) {
+        // Se estiver editando, chama a função de update com o ID da meta
+        await updateMeta(editingMeta.id, metaData);
+        Alert.alert('Sucesso', 'Sua meta foi atualizada!');
       } else {
-        metas.push({ nome, descricao, status });
-        Alert.alert('Meta Salva', 'Sua meta foi adicionada com sucesso!');
+        // Se for uma nova meta, chama a função de criação
+        await createMeta(metaData);
+        Alert.alert('Sucesso', 'Sua meta foi adicionada!');
       }
-
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(metas));
+      // Retorna para a tela anterior após salvar
       navigation.goBack();
     } catch (error) {
-      Alert.alert('Erro', 'Erro ao salvar a meta. Tente novamente.');
+      // O service já exibe um alerta de erro, então aqui apenas logamos no console.
+      console.error('Falha ao salvar a meta:', error);
     }
   };
 
@@ -82,7 +82,7 @@ const MetaFormScreen = ({ navigation, route }) => {
       </View>
 
       <Button
-        title={editing ? 'Salvar Alterações' : 'Adicionar Meta'}
+        title={editingMeta ? 'Salvar Alterações' : 'Adicionar Meta'}
         onPress={handleSave}
       />
     </View>
@@ -121,4 +121,3 @@ const styles = StyleSheet.create({
 });
 
 export default MetaFormScreen;
-

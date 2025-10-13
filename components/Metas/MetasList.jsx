@@ -1,45 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { COLORS } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+// Importe as funções do seu service
+import { getMetas, deleteMeta } from '../../services/MetasService'; // Ajuste o caminho se necessário
 
-const STORAGE_KEY = '@metas';
-
-const MetasList = ({ refreshTrigger }) => {
+const MetasList = () => { // Removido refreshTrigger, pois usaremos useFocusEffect
   const [metas, setMetas] = useState([]);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    loadMetas();
-  }, [refreshTrigger]);
-
   const loadMetas = async () => {
     try {
-      const saved = await AsyncStorage.getItem(STORAGE_KEY);
-      setMetas(saved ? JSON.parse(saved) : []);
+      const data = await getMetas();
+      setMetas(data);
     } catch (error) {
-      Alert.alert('Erro', 'Erro ao carregar metas. Tente novamente.');
+      // O service já exibe um alerta de erro.
+      console.error('Falha ao carregar metas:', error);
     }
   };
 
-  const handleDelete = async (index) => {
+  // useFocusEffect é chamado toda vez que a tela entra em foco
+  useFocusEffect(
+    useCallback(() => {
+      loadMetas();
+    }, [])
+  );
+
+  const handleDelete = async (id) => {
     try {
-      const updated = metas.filter((_, i) => i !== index);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      setMetas(updated);
-      Alert.alert('Meta Excluída', 'A meta foi excluída com sucesso!');
-    } catch {
-      Alert.alert('Erro', 'Não foi possível excluir a meta. Tente novamente.');
+      await deleteMeta(id);
+      // Atualiza a lista na tela removendo o item deletado, para um feedback instantâneo
+      setMetas(prevMetas => prevMetas.filter(meta => meta.id !== id));
+      Alert.alert('Sucesso', 'A meta foi excluída!');
+    } catch (error) {
+      console.error('Falha ao deletar meta:', error);
     }
   };
 
-  const handleEdit = (item, index) => {
-    navigation.navigate('MetaForm', { meta: item, index });
+  // Navega para a tela de formulário passando o objeto completo da meta
+  const handleEdit = (item) => {
+    navigation.navigate('MetaForm', { meta: item });
   };
 
-  const renderItem = ({ item, index }) => (
+  const renderItem = ({ item }) => (
     <View style={styles.metaItem}>
       <View style={{ flex: 1 }}>
         <Text style={styles.metaTitle}>{item.nome}</Text>
@@ -48,10 +52,11 @@ const MetasList = ({ refreshTrigger }) => {
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity onPress={() => handleEdit(item, index)}>
+        <TouchableOpacity onPress={() => handleEdit(item)}>
           <Ionicons name="create-outline" size={22} color="#4caf50" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDelete(index)}>
+        {/* Chama o handleDelete passando o ID da meta */}
+        <TouchableOpacity onPress={() => handleDelete(item.id)}>
           <Ionicons name="trash-outline" size={22} color="#f44336" />
         </TouchableOpacity>
       </View>
@@ -65,7 +70,8 @@ const MetasList = ({ refreshTrigger }) => {
       ) : (
         <FlatList
           data={metas}
-          keyExtractor={(_, index) => index.toString()}
+          // Use o ID da meta como chave, que é único
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
         />
       )}

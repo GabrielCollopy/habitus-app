@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../components/Global/CustomTextInput';
 import CustomButton from '../components/Global/CustomButton';
-import { createUser } from '../services/UserService';
+import { getAuthenticatedUser } from '../services/UserService';
+import { logout } from '../services/AuthService';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/Colors';
 
@@ -18,19 +20,31 @@ const ScreenContainer = styled.View`
 `;
 
 const TopSection = styled.View`
-    flex-direction: row;
     align-items: center;
     margin-bottom: 40px;
 `;
 
 const UserInfoContainer = styled.View`
-    margin-left: 20px;
+    align-itens: center;
+    text-align: center;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: ${COLORS.cardBackground};
 `;
 
 const UserInfoText = styled.Text`
     font-size: 16px;
+    font-weight: 500;
+    text-align: center;
     color: ${COLORS.textLight};
     margin-bottom: 5px;
+`;
+
+const UsernameText = styled.Text`
+    font-size: 22px;
+    font-weight: bold;
+    color: ${COLORS.textLight};
+    margin-top: 10px;
 `;
 
 const FormWrapper = styled.View`
@@ -51,7 +65,6 @@ const Title = styled.Text`
 const LogoArea = styled.View`
   align-items: left;
   margin-top: 40px;
-  margin-bottom: 40px;
 `;
 
 const UserDetails = styled.Text`
@@ -70,8 +83,43 @@ const Subtitle = styled.Text`
 
 
 const UserScreen = () => {
+    const navigation = useNavigation();
+    const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const data = await getAuthenticatedUser();
+                setUserData(data);
+            } catch (error) {
+                setError("Não foi possível carregar os dados do usuário.");
+                console.error("Erro ao carregar dados do usuário:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchUserData();
+    }, []);
+
+    const handleLogout = async () => {
+        await logout(navigation);
+    }
+
+    if (loading) {
+        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" /></View>;
+    }
+
+    if (error) {
+        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'red' }}>{error}</Text></View>;
+    }
+
     return (
         <ScreenContainer>
+
             <TopSection>
                 <LogoArea>
                     {/* Ícone do Logo */}
@@ -81,13 +129,35 @@ const UserScreen = () => {
                         color={COLORS.primary}
                     />
                 </LogoArea>
-                <UserInfoContainer>
-                    {/*Carregar com dados reais usando função getUser()*/}
-                    <UserInfoText>Username: Gabriel</UserInfoText>
-                    <UserInfoText>Altura: 1.80m</UserInfoText>
-                    <UserInfoText>Peso: 80kg</UserInfoText>
-                </UserInfoContainer>
+                <UsernameText>{userData.username}</UsernameText>
             </TopSection>
+
+            <UserInfoContainer>
+                {/*Carregar com dados reais usando função getUser()*/}
+                <UserInfoText>Email:</UserInfoText>
+                <CustomTextInput
+                    value={userData.email}
+                    editable={false}
+                />
+
+                <UserInfoText>Altura:</UserInfoText>
+                <CustomTextInput
+                    value={userData.altura || 'Não Informado'}
+                    editable={false}
+                />
+
+                <UserInfoText>Peso:</UserInfoText>
+                <CustomTextInput
+                    value={userData.peso || 'Não Informado'}
+                    editable={false}
+                />
+            </UserInfoContainer>
+
+            <CustomButton
+                title="Sair (Logout)"
+                onPress={handleLogout}
+                style={{ backgroundColor: '#c0392b', alignSelf: 'center' }}
+            />
         </ScreenContainer>
     );
 };

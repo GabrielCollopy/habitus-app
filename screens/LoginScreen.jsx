@@ -6,6 +6,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import CustomTextInput from '../components/Global/CustomTextInput';
 import CustomButton from '../components/Global/CustomButton';
 import { createUser } from '../services/UserService';
+import { login } from '../services/AuthService';
 import { COLORS } from '../constants/Colors';
 
 
@@ -38,29 +39,27 @@ const Subtitle = styled.Text`
 
 const LoginScreen = () => {
     const navigation = useNavigation();
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async () => {
-        if (!email || !password) {
+        if (!username || !password) {
             Alert.alert('Erro', 'Por favor, preencha todos os campos.');
             return;
         }
         setLoading(true);
-        /*try {
-            await createUser({ username, email, password });
-            Alert.alert('Sucesso', 'Usuário cadastrado com sucesso!')
-            navigation.navigate('AppContent');
+        try {
+            await login(username, password);
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'AppContent' }],
+            });
         } catch (error) {
-            const errorMessage = error.errorMessage
-            Alert.alert('Erro', errorMessage);
+            Alert.alert('Erro', 'Email ou senha inválidos.');
         } finally {
             setLoading(false);
-        }*/
-        // Temporariamente, apenas navega para o conteúdo principal do app
-        // --------------Ajustar para lógica real de login posteriormente--------------
-        navigation.navigate('AppContent');
+        }
         setLoading(false);
     }
 
@@ -76,11 +75,10 @@ const LoginScreen = () => {
                     <Title>Faça Seu Login</Title>
 
                     <CustomTextInput
-                        label="Email"
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="Insira seu email"
-                        keyboardType="email-address"
+                        label="Username"
+                        value={username}
+                        onChangeText={setUsername}
+                        placeholder="Insira seu username"
                         autoCapitalize="none"
                     />
 

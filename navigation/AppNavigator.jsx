@@ -10,7 +10,7 @@ import { ActivityIndicator, View } from "react-native"; // Para uma tela de load
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-    /*const [isUserLoggedIn, setIsUserLoggedIn] = useState(null);
+    const [isUserLoggedIn, setIsUserLoggedIn] = useState(null);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -23,12 +23,11 @@ export default function AppNavigator() {
     // Mostra um indicador de carregamento enquanto verifica o token
     if (isUserLoggedIn === null) {
         return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" /></View>;
-    }*/
+    }
 
     return (
-        /*<Stack.Navigator
+        <Stack.Navigator
             screenOptions={{ headerShown: false }}
-            nitialRouteName="Initial"
             initialRouteName={isUserLoggedIn ? "AppContent" : "Initial"}
         >
             {isUserLoggedIn ? (
@@ -40,16 +39,6 @@ export default function AppNavigator() {
                     <Stack.Screen name="Login" component={LoginScreen} />
                 </>
             )}
-        </Stack.Navigator>*/
-        <Stack.Navigator
-            screenOptions={{ headerShown: false }}
-            initialRouteName="Initial" // Sempre começa na tela inicial
-        >
-            {/* Todas as telas são declaradas aqui */}
-            <Stack.Screen name="Initial" component={InitialScreen} />
-            <Stack.Screen name="Cadastro" component={CadastroScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="AppContent" component={BottomNavigator} />
         </Stack.Navigator>
     )
 }

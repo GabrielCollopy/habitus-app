@@ -15,11 +15,13 @@ export const login = async (username, password) => {
 
     await AsyncStorage.setItem('userToken', token);
     api.defaults.headers.common['Authorization'] = `Basic ${token}`;
+    console.log(username, password);
     return true;
   } catch (error) {
     console.error("Erro no login:", error);
     await AsyncStorage.removeItem('userToken');
     delete api.defaults.headers.common['Authorization'];
+    console.log(username, password);
     throw error;
   }
 };

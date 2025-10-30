@@ -7,7 +7,7 @@ import { COLORS } from '../../constants/Colors';
 const ModalContainer = styled.View`
   flex: 1;
   justify-content: flex-end; /* Alinha o modal na parte inferior */
-  background-color: rgba(0, 0, 0, 0.6); /* Fundo escurecido */
+  background-color: ${COLORS.modalBackdrop}; /* Fundo escurecido */
 `;
 
 const ModalContent = styled.View`
@@ -15,8 +15,8 @@ const ModalContent = styled.View`
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   padding: 20px;
-  max-height: 85%; /* Limita a altura máxima do modal */
-  shadow-color: #000;
+  max-height: 85%; 
+  shadow-color: ${COLORS.black};
   shadow-offset: 0px -2px;
   shadow-opacity: 0.25;
   shadow-radius: 4px;
@@ -28,7 +28,7 @@ const Header = styled.View`
   justify-content: space-between;
   align-items: center;
   border-bottom-width: 1px;
-  border-bottom-color: #444;
+  border-bottom-color: ${COLORS.border};
   padding-bottom: 10px;
   margin-bottom: 15px;
 `;

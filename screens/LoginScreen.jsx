@@ -4,10 +4,23 @@ import { useNavigation } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../components/Global/CustomTextInput';
-import CustomButton from '../components/Global/CustomButton';
 import { COLORS } from '../constants/Colors';
 import { useAuth } from '../services/AuthContext';
 
+// Botão estilizado para ser consistente com o resto do app
+const StyledButton = styled.TouchableOpacity`
+    background-color: ${props => props.disabled ? COLORS.textSecondary : COLORS.primary};
+    padding: 14px 25px;
+    border-radius: 10px;
+    align-items: center;
+    margin-top: 20px;
+`;
+
+const ButtonText = styled.Text`
+    color: ${COLORS.accent};
+    font-size: 18px;
+    font-weight: bold;
+`;
 
 const ScreenContainer = styled.View`
     flex: 1;
@@ -85,12 +98,9 @@ const LoginScreen = () => {
                         secureTextEntry
                     />
 
-                    <CustomButton
-                        title={loading ? "Fazendo Login..." : "Entrar"}
-                        onPress={handleSubmit}
-                        disabled={loading}
-                        style={{ marginTop: 20 }}
-                    />
+                    <StyledButton onPress={handleSubmit} disabled={loading} activeOpacity={0.7}>
+                        <ButtonText>{loading ? "Fazendo Login..." : "Entrar"}</ButtonText>
+                    </StyledButton>
                 </FormWrapper>
             </KeyboardAwareScrollView>
         </ScreenContainer>

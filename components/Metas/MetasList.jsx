@@ -1,11 +1,59 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { FlatList, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import styled from 'styled-components/native';
 import { COLORS } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 // Importe as funções do seu service
 import { getMetas, deleteMeta } from '../../services/MetasService'; // Ajuste o caminho se necessário
 import { getAuthenticatedUser } from '../../services/UserService';
+
+const Container = styled.View`
+  flex: 1;
+  background-color: ${COLORS.background};
+  padding: 0 16px;
+`;
+
+const MetaItem = styled.View`
+  flex-direction: row;
+  align-items: center;
+  background-color: ${COLORS.cardBackground}; /* Usando cor do tema */
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+`;
+
+const MetaContent = styled.View`
+  flex: 1;
+`;
+
+const MetaTitle = styled.Text`
+  color: ${COLORS.textLight};
+  font-size: 18px;
+  font-weight: bold;
+`;
+
+const MetaDescription = styled.Text`
+  color: ${COLORS.textSecondary}; /* Usando cor do tema */
+  font-size: 14px;
+  margin: 4px 0;
+`;
+
+const MetaStatus = styled.Text`
+  color: ${COLORS.accent};
+  font-weight: bold;
+`;
+
+const ActionsContainer = styled.View`
+  flex-direction: row;
+`;
+
+const EmptyText = styled.Text`
+  color: ${COLORS.textSecondary}; /* Usando cor do tema */
+  text-align: center;
+  margin-top: 50px;
+  font-size: 16px;
+`;
 
 const MetasList = () => { // Removido refreshTrigger, pois usaremos useFocusEffect
   const [metas, setMetas] = useState([]);
@@ -47,29 +95,29 @@ const MetasList = () => { // Removido refreshTrigger, pois usaremos useFocusEffe
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.metaItem}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.metaTitle}>{item.nome}</Text>
-        <Text style={styles.metaDescription}>{item.descricao}</Text>
-        <Text style={styles.metaStatus}>Status: {item.status}</Text>
-      </View>
+    <MetaItem>
+      <MetaContent>
+        <MetaTitle>{item.nome}</MetaTitle>
+        <MetaDescription>{item.descricao}</MetaDescription>
+        <MetaStatus>Status: {item.status}</MetaStatus>
+      </MetaContent>
 
-      <View style={styles.actions}>
+      <ActionsContainer>
         <TouchableOpacity onPress={() => handleEdit(item)}>
-          <Ionicons name="create-outline" size={22} color="#4caf50" />
+          <Ionicons name="create-outline" size={22} color={COLORS.accent} />
         </TouchableOpacity>
-        {/* Chama o handleDelete passando o ID da meta */}
-        <TouchableOpacity onPress={() => handleDelete(item.id)}>
-          <Ionicons name="trash-outline" size={22} color="#f44336" />
+        {/* Adiciona margem para criar espaçamento, substituindo a propriedade 'gap' */}
+        <TouchableOpacity onPress={() => handleDelete(item.id)} style={{ marginLeft: 15 }}>
+          <Ionicons name="trash-outline" size={22} color={COLORS.primary} />
         </TouchableOpacity>
-      </View>
-    </View>
+      </ActionsContainer>
+    </MetaItem>
   );
 
   return (
-    <View style={styles.container}>
+    <Container>
       {metas.length === 0 ? (
-        <Text style={styles.emptyText}>Nenhuma meta encontrada. Adicione uma nova!</Text>
+        <EmptyText>Nenhuma meta encontrada. Adicione uma nova!</EmptyText>
       ) : (
         <FlatList
           data={metas}
@@ -78,47 +126,8 @@ const MetasList = () => { // Removido refreshTrigger, pois usaremos useFocusEffe
           renderItem={renderItem}
         />
       )}
-    </View>
+    </Container>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingHorizontal: 16,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1b1b1b',
-    borderRadius: 8,
-    padding: 12,
-    marginVertical: 8,
-  },
-  metaTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  metaDescription: {
-    color: '#ccc',
-    fontSize: 14,
-    marginVertical: 4,
-  },
-  metaStatus: {
-    color: '#4caf50',
-    fontWeight: 'bold',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  emptyText: {
-    color: '#ccc',
-    textAlign: 'center',
-    marginTop: 50,
-  },
-});
 
 export default MetasList;

@@ -3,11 +3,12 @@ import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../components/Global/CustomTextInput';
-import CustomButton from '../components/Global/CustomButton';
 import { getAuthenticatedUser, updateUser } from '../services/UserService';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../services/AuthContext';
 import { COLORS } from '../constants/Colors';
+import CustomButton from '../components/Global/CustomButton';
+import UserReceitasList from '../components/User/UserReceitasList';
 
 
 const ScreenContainer = styled.SafeAreaView`
@@ -51,9 +52,7 @@ const UsernameText = styled.Text`
 const ActionsContainer = styled.View`
     flex-direction: row;
     justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 20px; /* Adiciona espaçamento vertical acima dos botões */
 `;
 
 const ActionButton = styled.TouchableOpacity`
@@ -65,7 +64,7 @@ const ActionButton = styled.TouchableOpacity`
 `;
 
 const ActionButtonText = styled.Text`
-    color: white;
+    color: ${props => props.textColor || COLORS.textLight};
     margin-left: 8px;
     font-weight: bold;
 `;
@@ -75,6 +74,28 @@ const BottomContainer = styled.View`
     padding-top: 20px;
 `;
 
+// Componentes para o seletor de abas
+const ViewSelectorContainer = styled.View`
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: ${COLORS.cardBackground};
+    border-radius: 10px;
+    padding: 4px;
+`;
+
+const SelectorButton = styled.TouchableOpacity`
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: ${props => props.active ? COLORS.primary : 'transparent'};
+`;
+
+const SelectorButtonText = styled.Text`
+    color: ${props => props.active ? COLORS.accent : COLORS.textLight};
+    font-weight: bold;
+    text-align: center;
+`;
 
 const UserScreen = () => {
     const { logout } = useAuth();
@@ -83,6 +104,7 @@ const UserScreen = () => {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [error, setError] = useState(null);
+    const [activeView, setActiveView] = useState('dados'); // 'dados' ou 'receitas'
 
     const fetchUserData = useCallback(async () => {
             try {
@@ -139,11 +161,11 @@ const UserScreen = () => {
     const handleInputChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
 
     if (loading) {
-        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" /></View>;
+        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
     }
 
     if (error) {
-        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'red' }}>{error}</Text></View>;
+        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}><Text style={{ color: COLORS.danger }}>{error}</Text></View>;
     }
 
     return (
@@ -160,70 +182,86 @@ const UserScreen = () => {
                     <UsernameText>{userData.username}</UsernameText>
                 </TopSection>
 
-                <UserInfoContainer>
-                    <FieldContainer>
-                        <FieldLabel>Email:</FieldLabel>
-                        <CustomTextInput
-                            value={formData.email}
-                            onChangeText={(value) => handleInputChange('email', value)}
-                            editable={isEditing}
-                            keyboardType="email-address"
-                        />
-                    </FieldContainer>
-                    <FieldContainer>
-                        <FieldLabel>Altura (m):</FieldLabel>
-                        <CustomTextInput
-                            value={String(formData.altura)}
-                            onChangeText={(value) => handleInputChange('altura', value)}
-                            placeholder="Ex: 1.75"
-                            editable={isEditing}
-                            keyboardType="numeric"
-                        />
-                    </FieldContainer>
-                    <FieldContainer>
-                        <FieldLabel>Peso (kg):</FieldLabel>
-                        <CustomTextInput
-                            value={String(formData.peso)}
-                            onChangeText={(value) => handleInputChange('peso', value)}
-                            placeholder="Ex: 70.5"
-                            editable={isEditing}
-                            keyboardType="numeric"
-                        />
-                    </FieldContainer>
-                    <FieldContainer>
-                        <FieldLabel>Índice de Massa Corporal (IMC):</FieldLabel>
-                        <CustomTextInput
-                            value={userData.imc ? String(userData.imc.toFixed(2)) : 'N/A'}
-                            editable={false}
-                        />
-                    </FieldContainer>
-                </UserInfoContainer>
+                <ViewSelectorContainer>
+                    <SelectorButton active={activeView === 'dados'} onPress={() => setActiveView('dados')}>
+                        <SelectorButtonText active={activeView === 'dados'}>Meus Dados</SelectorButtonText>
+                    </SelectorButton>
+                    <SelectorButton active={activeView === 'receitas'} onPress={() => setActiveView('receitas')}>
+                        <SelectorButtonText active={activeView === 'receitas'}>Minhas Receitas</SelectorButtonText>
+                    </SelectorButton>
+                </ViewSelectorContainer>
 
-                <ActionsContainer>
-                    {isEditing ? (
-                        <>
-                            <ActionButton color="#27ae60" onPress={handleUpdate}>
-                                <Ionicons name="save-outline" size={20} color="white" />
-                                <ActionButtonText>Salvar</ActionButtonText>
-                            </ActionButton>
-                            <ActionButton color="#e74c3c" onPress={handleCancelEdit}>
-                                <Ionicons name="close-circle-outline" size={20} color="white" />
-                                <ActionButtonText>Cancelar</ActionButtonText>
-                            </ActionButton>
-                        </>
-                    ) : (
-                        <ActionButton onPress={() => setIsEditing(true)}>
-                            <Ionicons name="create-outline" size={20} color="white" />
-                            <ActionButtonText>Editar Dados</ActionButtonText>
-                        </ActionButton>
-                    )}
-                </ActionsContainer>
+                {activeView === 'dados' ? (
+                    <>
+                        <UserInfoContainer>
+                            <FieldContainer>
+                                <FieldLabel>Email:</FieldLabel>
+                                <CustomTextInput
+                                    value={formData.email}
+                                    onChangeText={(value) => handleInputChange('email', value)}
+                                    editable={isEditing}
+                                    keyboardType="email-address"
+                                />
+                            </FieldContainer>
+                            <FieldContainer>
+                                <FieldLabel>Altura (m):</FieldLabel>
+                                <CustomTextInput
+                                    value={String(formData.altura)}
+                                    onChangeText={(value) => handleInputChange('altura', value)}
+                                    placeholder="Ex: 1.75"
+                                    editable={isEditing}
+                                    keyboardType="numeric"
+                                />
+                            </FieldContainer>
+                            <FieldContainer>
+                                <FieldLabel>Peso (kg):</FieldLabel>
+                                <CustomTextInput
+                                    value={String(formData.peso)}
+                                    onChangeText={(value) => handleInputChange('peso', value)}
+                                    placeholder="Ex: 70.5"
+                                    editable={isEditing}
+                                    keyboardType="numeric"
+                                />
+                            </FieldContainer>
+                            <FieldContainer>
+                                <FieldLabel>Índice de Massa Corporal (IMC):</FieldLabel>
+                                <CustomTextInput
+                                    value={userData.imc ? String(userData.imc.toFixed(2)) : 'N/A'}
+                                    editable={false}
+                                />
+                            </FieldContainer>
+                        </UserInfoContainer>
+                        <ActionsContainer>
+                            {isEditing ? (
+                                <>
+                                    <ActionButton color={COLORS.success} onPress={handleUpdate}>
+                                        <Ionicons name="save-outline" size={20} color={COLORS.textLight} />
+                                        <ActionButtonText>Salvar</ActionButtonText>
+                                    </ActionButton>
+                                    <ActionButton color={COLORS.danger} onPress={handleCancelEdit} style={{ marginLeft: 15, marginTop: 0 }}>
+                                        <Ionicons name="close-circle-outline" size={20} color={COLORS.textLight} />
+                                        <ActionButtonText>Cancelar</ActionButtonText>
+                                    </ActionButton>
+                                </>
+                            ) : (
+                                <ActionButton onPress={() => setIsEditing(true)}>
+                                    <Ionicons name="create-outline" size={20} color={COLORS.accent} />
+                                    <ActionButtonText textColor={COLORS.accent}>Editar Dados</ActionButtonText>
+                                </ActionButton>
+                            )}
+                        </ActionsContainer>
+                    </>
+                ) : (
+                    <UserReceitasList />
+                )}
 
                 <BottomContainer>
                     <CustomButton
                         title="Sair"
                         onPress={logout}
-                        secondary
+                        secondary // Usa o estilo de borda
+                        borderColor={COLORS.danger} // Passa a cor da borda
+                        textColor={COLORS.danger}
                     />
                 </BottomContainer>
             </ScreenContainer>

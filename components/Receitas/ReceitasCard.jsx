@@ -12,7 +12,7 @@ const CardContainer = styled.TouchableOpacity`
   margin-bottom: 15px;
   /* Adicionando uma sombra sutil para profundidade */
   elevation: 5;
-  shadow-color: ${COLORS.primary}; 
+  shadow-color: ${COLORS.black}; 
   shadow-offset: 0px 4px;
   shadow-opacity: 0.1;
   shadow-radius: 4px;

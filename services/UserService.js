@@ -22,7 +22,7 @@ export async function createUser(user) {
 
 export async function updateUser(userId, user) {
     try {
-        const response = await api.put(`/api/user/${userId}`, user);
+        const response = await api.put(`/api/public/user/${userId}`, user);
         return response.data;
     } catch (error) {
         console.error("Erro ao atualizar usuário:", error);

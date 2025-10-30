@@ -7,6 +7,7 @@ import CustomTextInput from '../components/Global/CustomTextInput';
 import CustomButton from '../components/Global/CustomButton';
 import { createUser } from '../services/UserService';
 import { COLORS } from '../constants/Colors';
+import { useAuth } from '../services/AuthContext';
 
 const ScreenContainer = styled.View`
     flex: 1;
@@ -36,7 +37,7 @@ const Subtitle = styled.Text`
 `;
 
 const CadastroScreen = () => {
-    const navigation = useNavigation();
+    const { login } = useAuth();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -54,9 +55,9 @@ const CadastroScreen = () => {
         }
         setLoading(true);
         try {
-            await createUser({ username, email, password });
-            Alert.alert('Sucesso', 'Usuário cadastrado com sucesso!')
-            navigation.navigate('AppContent');
+            await createUser({ username, email, password, confirmPassword});
+            // Após o cadastro, faz o login automático do usuário
+            await login(username, password);
         } catch (error) {
             const errorMessage = error.errorMessage
             Alert.alert('Erro', errorMessage);

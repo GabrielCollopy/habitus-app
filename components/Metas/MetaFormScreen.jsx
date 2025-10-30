@@ -4,6 +4,7 @@ import Button from '../Global/CustomButton';
 import { COLORS } from '../../constants/Colors';
 // Importe as funções do seu service
 import { createMeta, updateMeta } from '../../services/MetasService';
+import { getAuthenticatedUser } from '../../services/UserService';
 
 export const MetaStatus = Object.freeze({
   CONCLUIDO: 'Concluído',
@@ -25,68 +26,74 @@ const MetaFormScreen = ({ navigation, route }) => {
       return;
     }
 
-    const metaData = { nome, descricao, status };
-
     try {
-      if (editingMeta) {
-        // Se estiver editando, chama a função de update com o ID da meta
-        await updateMeta(editingMeta.id, metaData);
-        Alert.alert('Sucesso', 'Sua meta foi atualizada!');
-      } else {
-        // Se for uma nova meta, chama a função de criação
-        await createMeta(metaData);
-        Alert.alert('Sucesso', 'Sua meta foi adicionada!');
+      const user = await getAuthenticatedUser();
+      if (!user || !user.id) {
+        Alert.alert('Erro', 'Usuário não autenticado.');
+        return;
       }
-      // Retorna para a tela anterior após salvar
+
+      const metaData = { nome, descricao, status, userId: user.id };
+
+      if (editingMeta) {
+        // Atualiza a meta existente
+        await updateMeta(editingMeta.id, metaData);
+        Alert.alert('Sucesso', 'Meta atualizada com sucesso!');
+      } else {
+        // Cria uma nova meta
+        await createMeta(metaData);
+        Alert.alert('Sucesso', 'Meta criada com sucesso!');
+      }
       navigation.goBack();
     } catch (error) {
-      // O service já exibe um alerta de erro, então aqui apenas logamos no console.
-      console.error('Falha ao salvar a meta:', error);
+        Alert.alert('Erro', 'Ocorreu um erro ao salvar a meta. Tente novamente.');
+        console.error('Erro ao salvar meta:', error);
     }
-  };
+  }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Nome:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nome da meta"
-        placeholderTextColor="#888"
-        value={nome}
-        onChangeText={setNome}
-      />
 
-      <Text style={styles.label}>Descrição:</Text>
-      <TextInput
-        style={[styles.input, { height: 100 }]}
-        placeholder="Descreva sua meta"
-        placeholderTextColor="#888"
-        multiline
-        value={descricao}
-        onChangeText={setDescricao}
-      />
+return (
+  <View style={styles.container}>
+    <Text style={styles.label}>Nome:</Text>
+    <TextInput
+      style={styles.input}
+      placeholder="Nome da meta"
+      placeholderTextColor="#888"
+      value={nome}
+      onChangeText={setNome}
+    />
 
-      <Text style={styles.label}>Status:</Text>
-      <View style={styles.statusContainer}>
-        {Object.values(MetaStatus).map((s) => (
-          <Button
-            key={s}
-            title={s}
-            onPress={() => setStatus(s)}
-            style={[
-              styles.statusButton,
-              status === s && styles.statusButtonSelected,
-            ]}
-          />
-        ))}
-      </View>
+    <Text style={styles.label}>Descrição:</Text>
+    <TextInput
+      style={[styles.input, { height: 100 }]}
+      placeholder="Descreva sua meta"
+      placeholderTextColor="#888"
+      multiline
+      value={descricao}
+      onChangeText={setDescricao}
+    />
 
-      <Button
-        title={editingMeta ? 'Salvar Alterações' : 'Adicionar Meta'}
-        onPress={handleSave}
-      />
+    <Text style={styles.label}>Status:</Text>
+    <View style={styles.statusContainer}>
+      {Object.values(MetaStatus).map((s) => (
+        <Button
+          key={s}
+          title={s}
+          onPress={() => setStatus(s)}
+          style={[
+            styles.statusButton,
+            status === s && styles.statusButtonSelected,
+          ]}
+        />
+      ))}
     </View>
-  );
+
+    <Button
+      title={editingMeta ? 'Salvar Alterações' : 'Adicionar Meta'}
+      onPress={handleSave}
+    />
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
@@ -96,7 +103,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   label: {
-    color: COLORS.text,
+    color: COLORS.textLight,
     fontSize: 16,
     marginBottom: 4,
   },

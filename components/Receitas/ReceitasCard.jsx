@@ -1,11 +1,11 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from '@expo/vector-icons';
 import CustomButton from "../Global/CustomButton";
 import { COLORS } from "../../constants/Colors";
 
-const CardContainer = styled.View`
+const CardContainer = styled.TouchableOpacity`
   background-color: ${COLORS.cardBackground}; /* Fundo escuro sutil */
   border-radius: 12px;
   padding: 16px;
@@ -55,9 +55,10 @@ const ButtonRow = styled.View`
 `;
 
 // -- Componente Principal --
-export default function ReceitasCard({ item, onEdit, onDelete }) {
+export default function ReceitasCard({ item, onPress }) {
+    // Removi as props onEdit e onDelete, pois o card agora só abre o modal
     return (
-        <CardContainer>
+        <CardContainer onPress={onPress} activeOpacity={0.8}>
             <Title>{item.nome}</Title>
 
             <Ionicons
@@ -77,18 +78,10 @@ export default function ReceitasCard({ item, onEdit, onDelete }) {
                 <LinkText>{item.link}</LinkText>
             ) : null}
 
-            <ButtonRow>
-                <CustomButton
-                    title="Editar"
-                    onPress={() => onEdit(item)}
-                    style={{ flex: 1, backgroundColor: COLORS.accent }}
-                />
-                <CustomButton
-                    title="Deletar"
-                    onPress={() => onDelete(item.id)}
-                    style={{ flex: 1, backgroundColor: '#c0392b' }}
-                />
-            </ButtonRow>
+            {/* O ButtonRow com os botões de editar e deletar foi removido.
+                Essas ações podem ser adicionadas dentro do modal de detalhes
+                para uma interface mais limpa. 
+            */}
         </CardContainer>
     );
 }

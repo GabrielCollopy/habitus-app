@@ -5,6 +5,7 @@ import { COLORS } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 // Importe as funções do seu service
 import { getMetas, deleteMeta } from '../../services/MetasService'; // Ajuste o caminho se necessário
+import { getAuthenticatedUser } from '../../services/UserService';
 
 const MetasList = () => { // Removido refreshTrigger, pois usaremos useFocusEffect
   const [metas, setMetas] = useState([]);
@@ -12,7 +13,9 @@ const MetasList = () => { // Removido refreshTrigger, pois usaremos useFocusEffe
 
   const loadMetas = async () => {
     try {
-      const data = await getMetas();
+      const user = await getAuthenticatedUser();
+      const userId = user.id;
+      const data = await getMetas(userId);
       setMetas(data);
     } catch (error) {
       // O service já exibe um alerta de erro.

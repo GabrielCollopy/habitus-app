@@ -4,23 +4,15 @@ import InitialScreen from "../screens/InitialScreen";
 import CadastroScreen from "../screens/CadastroScreen";
 import BottomNavigator from "../components/Global/BottomNavigator";
 import LoginScreen from "../screens/LoginScreen";
-import { initializeAuth } from "../services/AuthService";
 import { ActivityIndicator, View } from "react-native"; // Para uma tela de loading
+import { useAuth } from "../services/AuthContext";
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-    const [isUserLoggedIn, setIsUserLoggedIn] = useState(null);
+    const { isUserLoggedIn } = useAuth();
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            const token = await initializeAuth();
-            setIsUserLoggedIn(!!token);
-        };
-        checkAuth();
-    }, []);
-
-    // Mostra um indicador de carregamento enquanto verifica o token
+    // Mostra um indicador de carregamento enquanto o AuthContext verifica o token inicial
     if (isUserLoggedIn === null) {
         return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" /></View>;
     }

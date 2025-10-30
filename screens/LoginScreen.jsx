@@ -5,9 +5,8 @@ import styled from 'styled-components/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../components/Global/CustomTextInput';
 import CustomButton from '../components/Global/CustomButton';
-import { createUser } from '../services/UserService';
-import { login } from '../services/AuthService';
 import { COLORS } from '../constants/Colors';
+import { useAuth } from '../services/AuthContext';
 
 
 const ScreenContainer = styled.View`
@@ -38,7 +37,7 @@ const Subtitle = styled.Text`
 `;
 
 const LoginScreen = () => {
-    const navigation = useNavigation();
+    const { login } = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -51,16 +50,12 @@ const LoginScreen = () => {
         setLoading(true);
         try {
             await login(username, password);
-            navigation.reset({
-                index: 0,
-                routes: [{ name: 'AppContent' }],
-            });
+            // Não é mais necessário navegar! O AppNavigator fará a troca de tela automaticamente.
         } catch (error) {
             Alert.alert('Erro', 'Email ou senha inválidos.');
         } finally {
             setLoading(false);
         }
-        setLoading(false);
     }
 
     return (

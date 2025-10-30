@@ -21,7 +21,7 @@ export default function ReceitasStack() {
                 headerTintColor: COLORS.textLight,
             }}
         >
-            <Stack.Screen name="ReceitasList" component={ReceitasScreen} options={{ title: 'Minhas Receitas' }} />
+            <Stack.Screen name="ReceitasList" component={ReceitasScreen} options={{ title: 'Receitas' }} />
             <Stack.Screen name="ReceitasForm" component={ReceitasFormScreen} options={{ title: 'Adicionar Receita' }} />
         </Stack.Navigator>
     );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import styled from 'styled-components/native';
+import { useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../components/Global/CustomTextInput';
 import { getAuthenticatedUser, updateUser } from '../services/UserService';
@@ -99,6 +100,7 @@ const SelectorButtonText = styled.Text`
 
 const UserScreen = () => {
     const { logout } = useAuth();
+    const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
     const [formData, setFormData] = useState({ email: '', altura: '', peso: '' });
     const [loading, setLoading] = useState(true);
@@ -156,6 +158,10 @@ const UserScreen = () => {
         // Restaura os dados do formulário para os dados originais do usuário
         setFormData({ email: userData.email, altura: userData.altura || '', peso: userData.peso || '' });
         setIsEditing(false);
+    };
+
+    const handleNavigateToCreate = () => {
+        navigation.navigate('Receitas', { screen: 'ReceitasForm' });
     };
 
     const handleInputChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
@@ -252,7 +258,16 @@ const UserScreen = () => {
                         </ActionsContainer>
                     </>
                 ) : (
-                    <UserReceitasList />
+                    <>
+                        <CustomButton
+                            title="Criar Nova Receita"
+                            onPress={handleNavigateToCreate}
+                            icon={<Ionicons name="add-circle-outline" size={20} color={COLORS.accent} />}
+                            textColor={COLORS.accent}
+                            style={{ marginBottom: 20 }}
+                        />
+                        <UserReceitasList />
+                    </>
                 )}
 
                 <BottomContainer>

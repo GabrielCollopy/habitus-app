@@ -7,10 +7,7 @@ import { COLORS } from '../../constants/Colors';
 import { getReceitasByUser, deleteReceita } from '../../services/ReceitasService'; // Service das receitas
 import { getAuthenticatedUser } from '../../services/UserService'; // Service do usuário
 
-const Container = styled.View`
-  flex: 1;
-  margin-top: 20px;
-`;
+const Container = styled.View``;
 
 const ReceitaItem = styled.View`
   flex-direction: row;

@@ -18,6 +18,20 @@ const FormContainer = styled.View`
     justify-content: center;
 `;
 
+const EtapaInputContainer = styled.View`
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+`;
+
+const EtapaInput = styled.View`
+    flex: 1;
+`;
+
+const RemoveEtapaButton = styled.TouchableOpacity`
+    margin-left: 10px;
+`;
+
 const IngredientsContainer = styled.View`
     width: 100%;
     margin-bottom: 15px;
@@ -218,7 +232,8 @@ const ReceitasFormScreen = ({ route, navigation }) => {
     const isEditing = !!receitaExistente;
 
     const [nome, setNome] = useState(receitaExistente?.nome || '');
-    const [etapas, setEtapas] = useState(receitaExistente?.etapas || '');
+    // Alteração 1: Estado para array de etapas
+    const [etapasArray, setEtapasArray] = useState(['', '', '']);
     const [ingredientesSelecionados, setIngredientesSelecionados] = useState([]);
     const [link, setLink] = useState(receitaExistente?.link || '');
     const [isLoading, setIsLoading] = useState(false);
@@ -239,6 +254,13 @@ const ReceitasFormScreen = ({ route, navigation }) => {
     useEffect(() => {
         loadIngredientes();
         
+        // Alteração 2: Preencher etapas ao editar
+        if (isEditing && receitaExistente?.etapas) {
+            // Divide a string de etapas em um array, removendo a numeração
+            const etapasSalvas = receitaExistente.etapas.split('\n').map(e => e.replace(/^\d+\.\s*/, ''));
+            setEtapasArray(etapasSalvas.length > 0 ? etapasSalvas : ['']);
+        }
+
         // Se estiver editando e a receita tiver ingredientes, pre-selecionar
         if (isEditing && receitaExistente?.ingredientes) {
             if (Array.isArray(receitaExistente.ingredientes)) {
@@ -371,6 +393,21 @@ const ReceitasFormScreen = ({ route, navigation }) => {
         }
     };
 
+    // Alteração 3: Funções para manipular o array de etapas
+    const handleEtapaChange = (text, index) => {
+        const novasEtapas = [...etapasArray];
+        novasEtapas[index] = text;
+        setEtapasArray(novasEtapas);
+    };
+
+    const handleAddEtapa = () => {
+        setEtapasArray([...etapasArray, '']);
+    };
+
+    const handleRemoveEtapa = (index) => {
+        setEtapasArray(etapasArray.filter((_, i) => i !== index));
+    };
+
     const handleSubmit = async () => {
         if (!nome.trim()) {
             Alert.alert("Atenção", "Por favor, preencha o nome da receita.");
@@ -384,11 +421,22 @@ const ReceitasFormScreen = ({ route, navigation }) => {
 
         setIsLoading(true);
         try {
-            // O backend espera a lista de objetos de ingredientes, não apenas os IDs.
+            // Alteração 4: Processar o array de etapas antes de enviar
+            const etapasFormatadas = etapasArray
+                .map(e => e.trim()) // Remove espaços em branco
+                .filter(e => e) // Remove etapas vazias
+                .map((etapa, index) => `${index + 1}. ${etapa}`) // Adiciona numeração
+                .join('\n'); // Junta em uma única string
+
+            // O backend espera formatos diferentes para criação e edição.
+            // Criação (POST): Array de IDs [1, 2, 3]
+            // Edição (PUT): Array de objetos [{id: 1, ...}, {id: 2, ...}]
+            const ingredientesParaEnvio = isEditing ? ingredientesSelecionados : ingredientesSelecionados.map(ing => ing.id);
+
             const receitaData = {
                 nome,
-                etapas,
-                ingredientes: ingredientesSelecionados,
+                etapas: etapasFormatadas,
+                ingredientes: ingredientesParaEnvio,
                 link: link || null
             };
 
@@ -401,7 +449,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
             }
             
             setNome('');
-            setEtapas('');
+            setEtapasArray(['', '', '']);
             setIngredientesSelecionados([]);
             setLink('');
             navigation.goBack();
@@ -470,13 +518,29 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                     )}
                 </IngredientsContainer>
 
-                <CustomTextInput
-                    label="Etapas:"
-                    value={etapas}
-                    onChangeText={setEtapas}
-                    placeholder="Descreva as etapas"
-                    multiline
-                />
+                {/* Alteração 5: Renderizar os inputs de etapas dinamicamente */}
+                <Label>Etapas:</Label>
+                {etapasArray.map((etapa, index) => (
+                    <EtapaInputContainer key={index}>
+                        <EtapaInput>
+                            <CustomTextInput
+                                value={etapa}
+                                onChangeText={(text) => handleEtapaChange(text, index)}
+                                placeholder={`Etapa ${index + 1}`}
+                                multiline
+                            />
+                        </EtapaInput>
+                        {etapasArray.length > 1 && (
+                            <RemoveEtapaButton onPress={() => handleRemoveEtapa(index)}>
+                                <Ionicons name="remove-circle" size={24} color={COLORS.danger} />
+                            </RemoveEtapaButton>
+                        )}
+                    </EtapaInputContainer>
+                ))}
+                <CustomButton
+                    title="Adicionar Etapa"
+                    onPress={handleAddEtapa}
+                    secondary style={{ marginBottom: 15 }} />
 
                 <CustomTextInput
                     label="Link:"

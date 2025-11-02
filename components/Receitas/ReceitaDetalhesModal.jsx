@@ -62,6 +62,59 @@ const LinkText = styled.Text`
   font-size: 16px;
 `;
 
+const IngredientItem = styled.View`
+  margin-bottom: 15px;
+  padding: 12px;
+  background-color: ${COLORS.cardBackground};
+  border-radius: 8px;
+  border: 1px solid ${COLORS.border};
+`;
+
+const IngredientName = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${COLORS.primary};
+  margin-bottom: 8px;
+`;
+
+const NutritionalInfo = styled.View`
+  margin-top: 8px;
+`;
+
+const NutritionalRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 4px;
+`;
+
+const NutritionalLabel = styled.Text`
+  font-size: 14px;
+  color: ${COLORS.textLight};
+  opacity: 0.8;
+`;
+
+const NutritionalValue = styled.Text`
+  font-size: 14px;
+  color: ${COLORS.accent};
+  font-weight: 600;
+`;
+
+const TotalNutritionalInfo = styled.View`
+  margin-top: 15px;
+  padding: 15px;
+  background-color: ${COLORS.cardBackground};
+  border-radius: 8px;
+  border: 2px solid ${COLORS.accent};
+`;
+
+const TotalLabel = styled.Text`
+  font-size: 16px;
+  font-weight: bold;
+  color: ${COLORS.accent};
+  margin-bottom: 10px;
+  text-align: center;
+`;
+
 export default function ReceitaDetalhesModal({ visible, receita, onClose }) {
     if (!receita) {
         return null;
@@ -72,6 +125,20 @@ export default function ReceitaDetalhesModal({ visible, receita, onClose }) {
             Linking.openURL(receita.link).catch(err => console.error("Não foi possível abrir o link", err));
         }
     };
+
+    // Calcular totais nutricionais
+    const calcularTotais = () => {
+        if (!Array.isArray(receita.ingredientes)) return null;
+        
+        return receita.ingredientes.reduce((acc, ing) => ({
+            calorias: acc.calorias + (ing.calorias || 0),
+            proteinas: acc.proteinas + (ing.proteinas || 0),
+            gorduras: acc.gorduras + (ing.gorduras || 0),
+            carboidratos: acc.carboidratos + (ing.carboidratos || 0),
+        }), { calorias: 0, proteinas: 0, gorduras: 0, carboidratos: 0 });
+    };
+
+    const totais = calcularTotais();
 
     return (
         <Modal
@@ -90,7 +157,61 @@ export default function ReceitaDetalhesModal({ visible, receita, onClose }) {
                     </Header>
                     <ScrollView showsVerticalScrollIndicator={false}>
                         <SectionLabel>Ingredientes</SectionLabel>
-                        <ContentText>{receita.ingredientes}</ContentText>
+                        {Array.isArray(receita.ingredientes) ? (
+                            <>
+                                {receita.ingredientes.map((ing, index) => (
+                                    <IngredientItem key={ing.id || index}>
+                                        <IngredientName>{index + 1}. {ing.nome}</IngredientName>
+                                        {ing.descricao && (
+                                            <ContentText style={{ fontSize: 14, marginBottom: 8, opacity: 0.8 }}>
+                                                {ing.descricao}
+                                            </ContentText>
+                                        )}
+                                        <NutritionalInfo>
+                                            <NutritionalRow>
+                                                <NutritionalLabel>Calorias:</NutritionalLabel>
+                                                <NutritionalValue>{ing.calorias ? `${ing.calorias.toFixed(1)} kcal` : 'N/A'}</NutritionalValue>
+                                            </NutritionalRow>
+                                            <NutritionalRow>
+                                                <NutritionalLabel>Proteínas:</NutritionalLabel>
+                                                <NutritionalValue>{ing.proteinas ? `${ing.proteinas.toFixed(1)}g` : 'N/A'}</NutritionalValue>
+                                            </NutritionalRow>
+                                            <NutritionalRow>
+                                                <NutritionalLabel>Gorduras:</NutritionalLabel>
+                                                <NutritionalValue>{ing.gorduras ? `${ing.gorduras.toFixed(1)}g` : 'N/A'}</NutritionalValue>
+                                            </NutritionalRow>
+                                            <NutritionalRow>
+                                                <NutritionalLabel>Carboidratos:</NutritionalLabel>
+                                                <NutritionalValue>{ing.carboidratos ? `${ing.carboidratos.toFixed(1)}g` : 'N/A'}</NutritionalValue>
+                                            </NutritionalRow>
+                                        </NutritionalInfo>
+                                    </IngredientItem>
+                                ))}
+                                {totais && (
+                                    <TotalNutritionalInfo>
+                                        <TotalLabel>Total Nutricional da Receita</TotalLabel>
+                                        <NutritionalRow>
+                                            <NutritionalLabel style={{ fontSize: 16, fontWeight: 'bold' }}>Calorias:</NutritionalLabel>
+                                            <NutritionalValue style={{ fontSize: 16 }}>{totais.calorias.toFixed(1)} kcal</NutritionalValue>
+                                        </NutritionalRow>
+                                        <NutritionalRow>
+                                            <NutritionalLabel style={{ fontSize: 16, fontWeight: 'bold' }}>Proteínas:</NutritionalLabel>
+                                            <NutritionalValue style={{ fontSize: 16 }}>{totais.proteinas.toFixed(1)}g</NutritionalValue>
+                                        </NutritionalRow>
+                                        <NutritionalRow>
+                                            <NutritionalLabel style={{ fontSize: 16, fontWeight: 'bold' }}>Gorduras:</NutritionalLabel>
+                                            <NutritionalValue style={{ fontSize: 16 }}>{totais.gorduras.toFixed(1)}g</NutritionalValue>
+                                        </NutritionalRow>
+                                        <NutritionalRow>
+                                            <NutritionalLabel style={{ fontSize: 16, fontWeight: 'bold' }}>Carboidratos:</NutritionalLabel>
+                                            <NutritionalValue style={{ fontSize: 16 }}>{totais.carboidratos.toFixed(1)}g</NutritionalValue>
+                                        </NutritionalRow>
+                                    </TotalNutritionalInfo>
+                                )}
+                            </>
+                        ) : (
+                            <ContentText>{receita.ingredientes}</ContentText>
+                        )}
 
                         <SectionLabel>Etapas</SectionLabel>
                         <ContentText>{receita.etapas}</ContentText>

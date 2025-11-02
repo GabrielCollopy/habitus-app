@@ -68,11 +68,15 @@ export default function ReceitasCard({ item, onPress }) {
                 style={{ position: 'absolute', top: 16, right: 16 }}
             />
 
+            <SectionLabel>Ingredientes</SectionLabel>
+            <ContentText numberOfLines={3}>
+                {Array.isArray(item.ingredientes) 
+                    ? item.ingredientes.map((ing, index) => `${index + 1}. ${ing.nome}`).join('\n')
+                    : item.ingredientes}
+            </ContentText>
+
             <SectionLabel>Etapas</SectionLabel>
             <ContentText numberOfLines={3}>{item.etapas}</ContentText>
-
-            <SectionLabel>Ingredientes</SectionLabel>
-            <ContentText numberOfLines={3}>{item.ingredientes}</ContentText>
 
             {item.link ? (
                 <LinkText>{item.link}</LinkText>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, View, Modal, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { postReceita, updateReceita } from '../../services/ReceitasService';
+import { getAuthenticatedUser } from '../../services/UserService';
 import { getAllIngredientes, getIngredienteByName, postIngrediente } from '../../services/IngredientesService';
 import CustomButton from '../Global/CustomButton';
 import CustomTextInput from '../Global/CustomTextInput';
@@ -421,12 +422,20 @@ const ReceitasFormScreen = ({ route, navigation }) => {
 
         setIsLoading(true);
         try {
+            // Busca o usuário autenticado para obter o ID
+            const user = await getAuthenticatedUser();
+            if (!user || !user.id) {
+                Alert.alert("Erro de Autenticação", "Não foi possível identificar o usuário. Por favor, faça login novamente.");
+                setIsLoading(false);
+                return;
+            }
+
             // Alteração 4: Processar o array de etapas antes de enviar
             const etapasFormatadas = etapasArray
                 .map(e => e.trim()) // Remove espaços em branco
                 .filter(e => e) // Remove etapas vazias
                 .map((etapa, index) => `${index + 1}. ${etapa}`) // Adiciona numeração
-                .join('\n'); // Junta em uma única string
+                .join('\n'); // Junta em uma única string            
 
             // O backend espera formatos diferentes para criação e edição.
             // Criação (POST): Array de IDs [1, 2, 3]
@@ -437,7 +446,8 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                 nome,
                 etapas: etapasFormatadas,
                 ingredientes: ingredientesParaEnvio,
-                link: link || null
+                link: link || null,
+                userId: user.id // Adiciona o ID do usuário ao payload
             };
 
             if (isEditing) {

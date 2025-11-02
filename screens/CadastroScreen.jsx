@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../components/Global/CustomTextInput';
 import { createUser } from '../services/UserService';
 import { COLORS } from '../constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../services/AuthContext';
 
 // Botão estilizado para ser consistente com o resto do app
@@ -57,6 +58,8 @@ const CadastroScreen = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
     const handleSubmit = async () => {
         if (password !== confirmPassword) {
@@ -114,7 +117,16 @@ const CadastroScreen = () => {
                         value={password}
                         onChangeText={setPassword}
                         placeholder="Mínimo de 6 caracteres"
-                        secureTextEntry
+                        secureTextEntry={!isPasswordVisible}
+                        icon={
+                            <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={{ padding: 10 }}>
+                                <Ionicons 
+                                    name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
+                                    size={22} 
+                                    color={COLORS.textSecondary} 
+                                />
+                            </TouchableOpacity>
+                        }
                     />
 
                     <CustomTextInput
@@ -122,7 +134,16 @@ const CadastroScreen = () => {
                         value={confirmPassword}
                         onChangeText={setConfirmPassword}
                         placeholder="Repita a senha"
-                        secureTextEntry
+                        secureTextEntry={!isConfirmPasswordVisible}
+                        icon={
+                            <TouchableOpacity onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)} style={{ padding: 10 }}>
+                                <Ionicons 
+                                    name={isConfirmPasswordVisible ? "eye-off-outline" : "eye-outline"} 
+                                    size={22} 
+                                    color={COLORS.textSecondary} 
+                                />
+                            </TouchableOpacity>
+                        }
                     />
 
                     <StyledButton onPress={handleSubmit} disabled={loading} activeOpacity={0.7}>

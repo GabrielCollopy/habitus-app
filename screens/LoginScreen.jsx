@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../components/Global/CustomTextInput';
 import { COLORS } from '../constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../services/AuthContext';
 
 // Botão estilizado para ser consistente com o resto do app
@@ -54,6 +55,7 @@ const LoginScreen = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const handleSubmit = async () => {
         if (!username || !password) {
@@ -95,7 +97,16 @@ const LoginScreen = () => {
                         value={password}
                         onChangeText={setPassword}
                         placeholder="Insira sua senha"
-                        secureTextEntry
+                        secureTextEntry={!isPasswordVisible}
+                        icon={
+                            <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={{ padding: 10 }}>
+                                <Ionicons 
+                                    name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
+                                    size={22} 
+                                    color={COLORS.textSecondary} 
+                                />
+                            </TouchableOpacity>
+                        }
                     />
 
                     <StyledButton onPress={handleSubmit} disabled={loading} activeOpacity={0.7}>

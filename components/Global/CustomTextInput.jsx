@@ -1,42 +1,52 @@
-import React from "react";
-import { TextInput, StyleSheet } from "react-native";
+import React from 'react';
+import { View } from 'react-native';
 import styled from "styled-components/native";
+import { COLORS } from '../../constants/Colors';
 
-const StyledTextInputContainer = styled.View`
+const InputContainer = styled.View`
   width: 100%;
   margin-bottom: 15px;
 `;
 
-const StyledLabel = styled.Text`
+const InputWrapper = styled.View`
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid ${COLORS.border};
+    border-radius: 8px;
+    background-color: ${COLORS.background};
+`;
+
+const Label = styled.Text`
   font-weight: bold;
   margin-bottom: 5px;
-  color: #ffffffff;
+  color: ${COLORS.textLight};
   font-size: 14px;
-  `;
+`;
 
-const SyledTextInput = styled.TextInput`
-    border-width: 1px;
-    border-color: #A5D6A7;
-    border-radius: 8px;
+const StyledInput = styled.TextInput.attrs(props => ({
+    placeholderTextColor: props.placeholderTextColor || COLORS.textSecondary,
+}))`
+    flex: 1;
     padding: 12px;
-    color: #ffffffff;
-    background-color: rgba(255, 255, 255, 0.1);
+    color: ${COLORS.textLight};
     font-size: 16px;
 `;
 
-const CustomTextInput = ({ label, multiline, ...props}) => {
-    const isMultiline = multiline || false;
-
+const CustomTextInput = ({ label, multiline, icon, ...props}) => {
     return (
-        <StyledTextInputContainer>
-            {label && <StyledLabel>{label}</StyledLabel>}
-            <SyledTextInput
-                {...props}
-                multiline={isMultiline}
-                style={isMultiline ? {minHeight: 100, textAlignVertical: 'top'} : {}}
-                placeholderTextColor="#C8E6C9"
-            />
-        </StyledTextInputContainer>
+        <InputContainer>
+            {label && <Label>{label}</Label>}
+            <InputWrapper>
+                <StyledInput
+                    {...props}
+                    multiline={multiline}
+                    // Aplica altura mínima e alinhamento para campos de várias linhas
+                    style={multiline ? { minHeight: 100, textAlignVertical: 'top' } : {}}
+                />
+                {/* Renderiza o ícone se ele for passado como propriedade */}
+                {icon}
+            </InputWrapper>
+        </InputContainer>
     );
 };
 

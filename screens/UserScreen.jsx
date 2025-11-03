@@ -10,6 +10,8 @@ import { useAuth } from '../services/AuthContext';
 import { COLORS } from '../constants/Colors';
 import CustomButton from '../components/Global/CustomButton';
 import UserReceitasList from '../components/User/UserReceitasList';
+import FavoriteReceitasList from '../components/User/FavoriteReceitasList';
+import ImcClassification from '../components/User/ImcClassification';
 
 
 const ScreenContainer = styled.SafeAreaView`
@@ -106,7 +108,7 @@ const UserScreen = () => {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [error, setError] = useState(null);
-    const [activeView, setActiveView] = useState('dados'); // 'dados' ou 'receitas'
+    const [activeView, setActiveView] = useState('dados'); // 'dados', 'receitas' ou 'favoritas'
 
     const fetchUserData = useCallback(async () => {
             try {
@@ -195,6 +197,9 @@ const UserScreen = () => {
                     <SelectorButton active={activeView === 'receitas'} onPress={() => setActiveView('receitas')}>
                         <SelectorButtonText active={activeView === 'receitas'}>Minhas Receitas</SelectorButtonText>
                     </SelectorButton>
+                    <SelectorButton active={activeView === 'favoritas'} onPress={() => setActiveView('favoritas')}>
+                        <SelectorButtonText active={activeView === 'favoritas'}>Favoritas</SelectorButtonText>
+                    </SelectorButton>
                 </ViewSelectorContainer>
 
                 {activeView === 'dados' ? (
@@ -237,6 +242,9 @@ const UserScreen = () => {
                                 />
                             </FieldContainer>
                         </UserInfoContainer>
+
+                        <ImcClassification imc={userData?.imc} />
+                        
                         <ActionsContainer>
                             {isEditing ? (
                                 <>
@@ -257,7 +265,7 @@ const UserScreen = () => {
                             )}
                         </ActionsContainer>
                     </>
-                ) : (
+                ) : activeView === 'receitas' ? (
                     <>
                         <CustomButton
                             title="Criar Nova Receita"
@@ -268,6 +276,9 @@ const UserScreen = () => {
                         />
                         <UserReceitasList />
                     </>
+                ) : (
+                    // activeView === 'favoritas'
+                    <FavoriteReceitasList />
                 )}
 
                 <BottomContainer>

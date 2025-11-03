@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from '@expo/vector-icons';
 import CustomButton from "../Global/CustomButton";
 import { COLORS } from "../../constants/Colors";
+import { addFavorite, removeFavorite, isFavorite } from "../../services/FavoriteService";
+import { useIsFocused } from "@react-navigation/native";
 
 const CardContainer = styled.TouchableOpacity`
   background-color: ${COLORS.cardBackground}; /* Fundo escuro sutil */
@@ -56,17 +58,43 @@ const ButtonRow = styled.View`
 
 // -- Componente Principal --
 export default function ReceitasCard({ item, onPress }) {
-    // Removi as props onEdit e onDelete, pois o card agora só abre o modal
+    const [isFav, setIsFav] = useState(false);
+    const isFocused = useIsFocused();
+
+    // Verifica o status de favorito quando o card é montado ou a tela ganha foco
+    useEffect(() => {
+        const checkFavoriteStatus = async () => {
+            const status = await isFavorite(item.id);
+            setIsFav(status);
+        };
+        checkFavoriteStatus();
+    }, [item.id, isFocused]);
+
+    const handleToggleFavorite = async () => {
+        if (isFav) {
+            await removeFavorite(item.id);
+            setIsFav(false);
+        } else {
+            await addFavorite(item);
+            setIsFav(true);
+        }
+    };
+
     return (
         <CardContainer onPress={onPress} activeOpacity={0.8}>
             <Title>{item.nome}</Title>
 
-            <Ionicons
-                name="bookmark-outline"
-                size={20}
-                color={COLORS.accent}
-                style={{ position: 'absolute', top: 16, right: 16 }}
-            />
+            <TouchableOpacity 
+                onPress={handleToggleFavorite} 
+                style={{ position: 'absolute', top: 16, right: 16, padding: 5 }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} // Aumenta a área de toque
+            >
+                <Ionicons
+                    name={isFav ? "bookmark" : "bookmark-outline"}
+                    size={24}
+                    color={isFav ? COLORS.primary : COLORS.accent}
+                />
+            </TouchableOpacity>
 
             <SectionLabel>Ingredientes</SectionLabel>
             <ContentText numberOfLines={3}>

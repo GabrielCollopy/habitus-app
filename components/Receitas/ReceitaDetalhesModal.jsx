@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { Modal, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/Colors';
@@ -54,13 +54,7 @@ const ContentText = styled.Text`
   line-height: 24px;
 `;
 
-const LinkText = styled.Text`
-  margin-top: 10px;
-  color: ${COLORS.accent};
-  font-style: italic;
-  text-decoration-line: underline;
-  font-size: 16px;
-`;
+
 
 const IngredientItem = styled.View`
   margin-bottom: 15px;
@@ -120,16 +114,12 @@ export default function ReceitaDetalhesModal({ visible, receita, onClose }) {
         return null;
     }
 
-    const handleLinkPress = () => {
-        if (receita.link) {
-            Linking.openURL(receita.link).catch(err => console.error("Não foi possível abrir o link", err));
-        }
-    };
+
 
     // Calcular totais nutricionais
     const calcularTotais = () => {
         if (!Array.isArray(receita.ingredientes)) return null;
-        
+
         return receita.ingredientes.reduce((acc, ing) => ({
             calorias: acc.calorias + (ing.calorias || 0),
             proteinas: acc.proteinas + (ing.proteinas || 0),
@@ -216,9 +206,7 @@ export default function ReceitaDetalhesModal({ visible, receita, onClose }) {
                         <SectionLabel>Etapas</SectionLabel>
                         <ContentText>{receita.etapas}</ContentText>
 
-                        {receita.link ? (
-                            <TouchableOpacity onPress={handleLinkPress}><LinkText>Ver receita original</LinkText></TouchableOpacity>
-                        ) : null}
+
                     </ScrollView>
                 </ModalContent>
             </ModalContainer>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from '@expo/vector-icons';
 import CustomButton from "../Global/CustomButton";
@@ -10,7 +10,6 @@ import { useIsFocused } from "@react-navigation/native";
 const CardContainer = styled.TouchableOpacity`
   background-color: ${COLORS.cardBackground}; /* Fundo escuro sutil */
   border-radius: 12px;
-  padding: 16px;
   margin-bottom: 15px;
   /* Adicionando uma sombra sutil para profundidade */
   elevation: 5;
@@ -19,6 +18,17 @@ const CardContainer = styled.TouchableOpacity`
   shadow-opacity: 0.1;
   shadow-radius: 4px;
   border: 1px solid ${COLORS.cardBackground}; /* Borda para evitar CLS */
+  overflow: hidden; /* Garante que a imagem respeite o border-radius */
+`;
+
+const RecipeImage = styled.Image`
+  width: 100%;
+  height: 200px;
+  resize-mode: cover;
+`;
+
+const CardContent = styled.View`
+  padding: 16px;
 `;
 
 const Title = styled.Text`
@@ -40,13 +50,6 @@ const ContentText = styled.Text`
   color: ${COLORS.textLight};
   line-height: 22px;
   margin-bottom: 5px;
-`;
-
-const LinkText = styled.Text`
-  margin-top: 8px;
-  color: ${COLORS.accent}; /* Link em cor de acento */
-  font-style: italic;
-  text-decoration-line: underline;
 `;
 
 const ButtonRow = styled.View`
@@ -82,38 +85,37 @@ export default function ReceitasCard({ item, onPress }) {
 
     return (
         <CardContainer onPress={onPress} activeOpacity={0.8}>
-            <Title>{item.nome}</Title>
-
-            <TouchableOpacity 
-                onPress={handleToggleFavorite} 
-                style={{ position: 'absolute', top: 16, right: 16, padding: 5 }}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} // Aumenta a área de toque
-            >
-                <Ionicons
-                    name={isFav ? "bookmark" : "bookmark-outline"}
-                    size={24}
-                    color={isFav ? COLORS.primary : COLORS.accent}
-                />
-            </TouchableOpacity>
-
-            <SectionLabel>Ingredientes</SectionLabel>
-            <ContentText numberOfLines={3}>
-                {Array.isArray(item.ingredientes) 
-                    ? item.ingredientes.map((ing, index) => `${index + 1}. ${ing.nome}`).join('\n')
-                    : item.ingredientes}
-            </ContentText>
-
-            <SectionLabel>Etapas</SectionLabel>
-            <ContentText numberOfLines={3}>{item.etapas}</ContentText>
-
             {item.link ? (
-                <LinkText>{item.link}</LinkText>
+                <RecipeImage source={{ uri: item.link }} />
             ) : null}
 
-            {/* O ButtonRow com os botões de editar e deletar foi removido.
-                Essas ações podem ser adicionadas dentro do modal de detalhes
-                para uma interface mais limpa. 
-            */}
+            <CardContent>
+                <Title>{item.nome}</Title>
+
+                <TouchableOpacity
+                    onPress={handleToggleFavorite}
+                    style={{ position: 'absolute', top: 16, right: 16, padding: 5, zIndex: 1 }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} // Aumenta a área de toque
+                >
+                    <Ionicons
+                        name={isFav ? "bookmark" : "bookmark-outline"}
+                        size={24}
+                        color={isFav ? COLORS.primary : COLORS.accent}
+                    />
+                </TouchableOpacity>
+
+                <SectionLabel>Ingredientes</SectionLabel>
+                <ContentText numberOfLines={3}>
+                    {Array.isArray(item.ingredientes)
+                        ? item.ingredientes.map((ing, index) => `${index + 1}. ${ing.nome}`).join('\n')
+                        : item.ingredientes}
+                </ContentText>
+
+                <SectionLabel>Etapas</SectionLabel>
+                <ContentText numberOfLines={3}>{item.etapas}</ContentText>
+
+                {/* Link removido da visualização direta pois agora é a imagem */}
+            </CardContent>
         </CardContainer>
     );
 }

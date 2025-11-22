@@ -6,6 +6,7 @@ import CustomButton from "../Global/CustomButton";
 import { COLORS } from "../../constants/Colors";
 import { addFavorite, removeFavorite, isFavorite } from "../../services/FavoriteService";
 import { useIsFocused } from "@react-navigation/native";
+import ComentariosReceita from "./ComentariosReceita";
 
 const CardContainer = styled.TouchableOpacity`
   background-color: ${COLORS.cardBackground}; /* Fundo escuro sutil */
@@ -61,61 +62,61 @@ const ButtonRow = styled.View`
 
 // -- Componente Principal --
 export default function ReceitasCard({ item, onPress }) {
-    const [isFav, setIsFav] = useState(false);
-    const isFocused = useIsFocused();
+  const [isFav, setIsFav] = useState(false);
+  const isFocused = useIsFocused();
 
-    // Verifica o status de favorito quando o card é montado ou a tela ganha foco
-    useEffect(() => {
-        const checkFavoriteStatus = async () => {
-            const status = await isFavorite(item.id);
-            setIsFav(status);
-        };
-        checkFavoriteStatus();
-    }, [item.id, isFocused]);
-
-    const handleToggleFavorite = async () => {
-        if (isFav) {
-            await removeFavorite(item.id);
-            setIsFav(false);
-        } else {
-            await addFavorite(item);
-            setIsFav(true);
-        }
+  // Verifica o status de favorito quando o card é montado ou a tela ganha foco
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      const status = await isFavorite(item.id);
+      setIsFav(status);
     };
+    checkFavoriteStatus();
+  }, [item.id, isFocused]);
 
-    return (
-        <CardContainer onPress={onPress} activeOpacity={0.8}>
-            {item.link ? (
-                <RecipeImage source={{ uri: item.link }} />
-            ) : null}
+  const handleToggleFavorite = async () => {
+    if (isFav) {
+      await removeFavorite(item.id);
+      setIsFav(false);
+    } else {
+      await addFavorite(item);
+      setIsFav(true);
+    }
+  };
 
-            <CardContent>
-                <Title>{item.nome}</Title>
+  return (
+    <CardContainer onPress={onPress} activeOpacity={0.8}>
+      {item.link ? (
+        <RecipeImage source={{ uri: item.link }} />
+      ) : null}
 
-                <TouchableOpacity
-                    onPress={handleToggleFavorite}
-                    style={{ position: 'absolute', top: 16, right: 16, padding: 5, zIndex: 1 }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} // Aumenta a área de toque
-                >
-                    <Ionicons
-                        name={isFav ? "bookmark" : "bookmark-outline"}
-                        size={24}
-                        color={isFav ? COLORS.primary : COLORS.accent}
-                    />
-                </TouchableOpacity>
+      <CardContent>
+        <Title>{item.nome}</Title>
 
-                <SectionLabel>Ingredientes</SectionLabel>
-                <ContentText numberOfLines={3}>
-                    {Array.isArray(item.ingredientes)
-                        ? item.ingredientes.map((ing, index) => `${index + 1}. ${ing.nome}`).join('\n')
-                        : item.ingredientes}
-                </ContentText>
+        <TouchableOpacity
+          onPress={handleToggleFavorite}
+          style={{ position: 'absolute', top: 16, right: 16, padding: 5, zIndex: 1 }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} // Aumenta a área de toque
+        >
+          <Ionicons
+            name={isFav ? "bookmark" : "bookmark-outline"}
+            size={24}
+            color={isFav ? COLORS.primary : COLORS.accent}
+          />
+        </TouchableOpacity>
 
-                <SectionLabel>Etapas</SectionLabel>
-                <ContentText numberOfLines={3}>{item.etapas}</ContentText>
+        <SectionLabel>Ingredientes</SectionLabel>
+        <ContentText numberOfLines={3}>
+          {Array.isArray(item.ingredientes)
+            ? item.ingredientes.map((ing, index) => `${index + 1}. ${ing.nome}`).join('\n')
+            : item.ingredientes}
+        </ContentText>
 
-                {/* Link removido da visualização direta pois agora é a imagem */}
-            </CardContent>
-        </CardContainer>
-    );
+        <SectionLabel>Etapas</SectionLabel>
+        <ContentText numberOfLines={3}>{item.etapas}</ContentText>
+
+        <ComentariosReceita receitaId={item.id} />
+      </CardContent>
+    </CardContainer>
+  );
 }

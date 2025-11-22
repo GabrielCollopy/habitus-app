@@ -30,9 +30,19 @@ export async function updateUser(userId, user) {
     }
 }
 
+export async function getUserById(userId) {
+    try {
+        const response = await api.get(`/api/public/user/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar usuário por ID:", error);
+        throw error;
+    }
+}
+
 export async function deleteUser(userId) {
     try {
-        const response = await api.delete(`${API_BASE_URL}/api/user/${userId}`);
+        const response = await api.delete(`/api/user/${userId}`);
     }
     catch (error) {
         console.error("Erro ao deletar usuário:", error);

@@ -1,76 +1,91 @@
 import React from 'react';
-import { View, Text } from 'react-native';
 import styled from 'styled-components/native';
-import { COLORS } from '../../constants/Colors';
-import { imcClassifications, getImcClassificationKey } from '../../services/imcUtils';
+import { useTheme } from '../../services/ThemeContext';
 
 const Container = styled.View`
-    margin-top: 25px;
+    margin-top: 20px;
     padding: 15px;
-    border-radius: 12px;
-    background-color: ${COLORS.cardBackground};
+    background-color: ${props => props.theme.cardBackground};
+    border-radius: 10px;
+    width: 100%;
 `;
 
 const Title = styled.Text`
     font-size: 18px;
     font-weight: bold;
-    color: ${COLORS.textLight};
-    margin-bottom: 15px;
+    color: ${props => props.theme.textLight};
+    margin-bottom: 10px;
     text-align: center;
 `;
 
 const TableHeader = styled.View`
     flex-direction: row;
+    justify-content: space-between;
     border-bottom-width: 1px;
-    border-bottom-color: ${COLORS.border};
-    padding-bottom: 8px;
-    margin-bottom: 8px;
+    border-bottom-color: ${props => props.theme.border};
+    padding-bottom: 5px;
+    margin-bottom: 5px;
 `;
 
-const Row = styled.View`
+const HeaderText = styled.Text`
+    font-weight: bold;
+    color: ${props => props.theme.textSecondary};
+    flex: 1;
+    text-align: center;
+`;
+
+const TableRow = styled.View`
     flex-direction: row;
-    padding: 8px 4px;
-    border-radius: 6px;
-    background-color: ${props => props.isHighlighted ? `${props.highlightColor}30` : 'transparent'};
+    justify-content: space-between;
+    padding-vertical: 5px;
+    background-color: ${props => props.isHighlighted ? props.theme.accent + '33' : 'transparent'};
+    border-radius: 4px;
 `;
 
-const Column = styled.Text`
-    font-size: 14px;
-    color: ${props => props.isHighlighted ? props.highlightColor : COLORS.textLight};
+const CellText = styled.Text`
+    color: ${props => props.isHighlighted ? props.theme.accent : props.theme.textLight};
+    flex: 1;
+    text-align: center;
     font-weight: ${props => props.isHighlighted ? 'bold' : 'normal'};
 `;
 
-const ImcClassification = ({ imc }) => {
-    const userClassificationKey = getImcClassificationKey(imc);
+const ImcClassification = ({ currentImc }) => {
+    const { colors } = useTheme();
 
-    if (imc === null || imc === undefined || imc <= 0) {
-        return null; // Não renderiza nada se não houver IMC
-    }
+    const classifications = [
+        { range: "Abaixo de 18.5", classification: "Abaixo do peso" },
+        { range: "18.5 - 24.9", classification: "Peso normal" },
+        { range: "25.0 - 29.9", classification: "Sobrepeso" },
+        { range: "30.0 - 34.9", classification: "Obesidade Grau I" },
+        { range: "35.0 - 39.9", classification: "Obesidade Grau II" },
+        { range: "Acima de 40.0", classification: "Obesidade Grau III" },
+    ];
+
+    const getHighlightIndex = (imc) => {
+        if (!imc) return -1;
+        if (imc < 18.5) return 0;
+        if (imc < 25.0) return 1;
+        if (imc < 30.0) return 2;
+        if (imc < 35.0) return 3;
+        if (imc < 40.0) return 4;
+        return 5;
+    };
+
+    const highlightIndex = getHighlightIndex(currentImc);
 
     return (
         <Container>
-            <Title>Classificação do IMC</Title>
+            <Title>Classificação IMC</Title>
             <TableHeader>
-                <Column style={{ flex: 2, fontWeight: 'bold' }}>Classificação</Column>
-                <Column style={{ flex: 1.5, fontWeight: 'bold', textAlign: 'right' }}>IMC</Column>
+                <HeaderText>IMC</HeaderText>
+                <HeaderText>Classificação</HeaderText>
             </TableHeader>
-            {imcClassifications.map((item) => {
-                const isHighlighted = item.key === userClassificationKey;
-                return (
-                    <Row key={item.key} isHighlighted={isHighlighted} highlightColor={item.color}>
-                        <Column 
-                            style={{ flex: 2 }} 
-                            isHighlighted={isHighlighted} 
-                            highlightColor={item.color}
-                        >{item.classification}</Column>
-                        <Column 
-                            style={{ flex: 1.5, textAlign: 'right' }} 
-                            isHighlighted={isHighlighted} 
-                            highlightColor={item.color}
-                        >{item.range}</Column>
-                    </Row>
-                );
-            })}
+            {classifications.map((item, index) => (
+                <TableRow key={index} isHighlighted={index === highlightIndex}>
+                    <CellText isHighlighted={index === highlightIndex}>{item.range}</CellText>
+                    <CellText isHighlighted={index === highlightIndex}>{item.classification}</CellText>
+                </TableRow>
+            ))}
         </Container>
     );
 };

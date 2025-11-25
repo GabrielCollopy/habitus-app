@@ -4,18 +4,18 @@ import styled from 'styled-components/native';
 import { getReceitas, deleteReceita, searchReceitasByName } from '../../services/ReceitasService';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import ReceitasCard from './ReceitasCard';
-import ReceitaDetalhesModal from './ReceitaDetalhesModal'; // 1. Importar o modal
-import { COLORS } from '../../constants/Colors';
+import ReceitaDetalhesModal from './ReceitaDetalhesModal';
+import { useTheme } from '../../services/ThemeContext';
 import CustomButton from '../Global/CustomButton';
 
 const ListContainer = styled.SafeAreaView`
   flex: 1;
-  background-color: ${COLORS.background}; /* Fundo escuro do tema */
+  background-color: ${props => props.theme.background};
   padding: 10px;
 `;
 
 const NoDataText = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     text-align: center;
     margin-top: 50px;
     font-size: 16px;
@@ -25,16 +25,16 @@ const LoadingContainer = styled.View`
     flex: 1;
     justify-content: center;
     align-items: center;
-    background-color: ${COLORS.background};
+    background-color: ${props => props.theme.background};
 `;
 
-export default function ReceitasList({ searchTerm }) {
+export default function ReceitasList({ searchTerm, scrollEnabled = true }) {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+  const { colors } = useTheme();
 
   const [receitas, setReceitas] = useState([]);
   const [loading, setLoading] = useState(true);
-  // 2. Adicionar estados para controlar o modal
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReceita, setSelectedReceita] = useState(null);
 
@@ -43,8 +43,6 @@ export default function ReceitasList({ searchTerm }) {
     setLoading(true);
     try {
       let data;
-      // Se houver um termo de busca, usa a função de pesquisa.
-      // Caso contrário, busca todas as receitas.
       if (searchTerm && searchTerm.trim() !== '') {
         data = await searchReceitasByName(searchTerm);
       } else {
@@ -60,8 +58,7 @@ export default function ReceitasList({ searchTerm }) {
   };
 
   useEffect(() => {
-    // A busca é acionada quando a tela ganha foco OU quando o termo de busca muda.
-    if (isFocused) { 
+    if (isFocused) {
       loadData();
     }
   }, [isFocused, searchTerm]);
@@ -93,13 +90,11 @@ export default function ReceitasList({ searchTerm }) {
     navigation.navigate('ReceitasForm', { receita: item });
   }
 
-  // 3. Adicionar função para abrir o modal
   const handleCardPress = (item) => {
     setSelectedReceita(item);
     setModalVisible(true);
   };
 
-  // 4. Adicionar função para fechar o modal
   const handleCloseModal = () => {
     setModalVisible(false);
     setSelectedReceita(null);
@@ -107,7 +102,7 @@ export default function ReceitasList({ searchTerm }) {
   if (loading) {
     return (
       <LoadingContainer>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </LoadingContainer>
     );
   }
@@ -128,13 +123,11 @@ export default function ReceitasList({ searchTerm }) {
         renderItem={({ item }) => (
           <ReceitasCard
             item={item}
-            onPress={() => handleCardPress(item)} // 5. Passar a função de clique para o card
-            // onEdit={() => handleEdit(item)} // Estas funções podem ser movidas para o modal depois
-            // onDelete={() => handleDelete(item.id)}
+            onPress={() => handleCardPress(item)}
           />
         )}
+        scrollEnabled={scrollEnabled}
       />
-      {/* 6. Renderizar o modal */}
       <ReceitaDetalhesModal
         visible={modalVisible}
         receita={selectedReceita}

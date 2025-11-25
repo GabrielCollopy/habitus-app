@@ -3,22 +3,22 @@ import { View, Text, TouchableOpacity, Image } from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from '@expo/vector-icons';
 import CustomButton from "../Global/CustomButton";
-import { COLORS } from "../../constants/Colors";
 import { addFavorite, removeFavorite, isFavorite } from "../../services/FavoriteService";
 import { useIsFocused } from "@react-navigation/native";
 import ComentariosReceita from "./ComentariosReceita";
+import { useTheme } from "../../services/ThemeContext";
 
 const CardContainer = styled.TouchableOpacity`
-  background-color: ${COLORS.cardBackground}; /* Fundo escuro sutil */
+  background-color: ${props => props.theme.cardBackground}; /* Fundo escuro sutil */
   border-radius: 12px;
   margin-bottom: 15px;
   /* Adicionando uma sombra sutil para profundidade */
   elevation: 5;
-  shadow-color: ${COLORS.black}; 
+  shadow-color: #000; 
   shadow-offset: 0px 4px;
   shadow-opacity: 0.1;
   shadow-radius: 4px;
-  border: 1px solid ${COLORS.cardBackground}; /* Borda para evitar CLS */
+  border: 1px solid ${props => props.theme.cardBackground}; /* Borda para evitar CLS */
   overflow: hidden; /* Garante que a imagem respeite o border-radius */
 `;
 
@@ -36,19 +36,24 @@ const Title = styled.Text`
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 10px;
-  color: ${COLORS.primary}; /* Título com cor de destaque */
+  color: ${props => props.theme.primary}; /* Título com cor de destaque */
+  ${props => props.theme.primaryTextShadow && `
+    text-shadow-color: ${props.theme.primaryTextShadow.textShadowColor};
+    text-shadow-offset: ${props.theme.primaryTextShadow.textShadowOffset.width}px ${props.theme.primaryTextShadow.textShadowOffset.height}px;
+    text-shadow-radius: ${props.theme.primaryTextShadow.textShadowRadius}px;
+  `}
 `;
 
 const SectionLabel = styled.Text`
   font-weight: bold;
   margin-top: 10px;
-  color: ${COLORS.textLight}; /* Rótulo em branco suave */
+  color: ${props => props.theme.textLight}; /* Rótulo em branco suave */
   font-size: 14px;
 `;
 
 const ContentText = styled.Text`
   font-size: 15px;
-  color: ${COLORS.textLight};
+  color: ${props => props.theme.textLight};
   line-height: 22px;
   margin-bottom: 5px;
 `;
@@ -64,6 +69,7 @@ const ButtonRow = styled.View`
 export default function ReceitasCard({ item, onPress }) {
   const [isFav, setIsFav] = useState(false);
   const isFocused = useIsFocused();
+  const { colors } = useTheme();
 
   // Verifica o status de favorito quando o card é montado ou a tela ganha foco
   useEffect(() => {
@@ -101,7 +107,7 @@ export default function ReceitasCard({ item, onPress }) {
           <Ionicons
             name={isFav ? "bookmark" : "bookmark-outline"}
             size={24}
-            color={isFav ? COLORS.primary : COLORS.accent}
+            color={isFav ? colors.primary : colors.accent}
           />
         </TouchableOpacity>
 

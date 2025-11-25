@@ -8,12 +8,12 @@ import CustomTextInput from '../Global/CustomTextInput';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import styled from 'styled-components/native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../constants/Colors';
+import { useTheme } from '../../services/ThemeContext';
 
 const FormContainer = styled.View`
     margin: 24px;
     margin-top: 50px;
-    background-color: ${COLORS.cardBackground}; 
+    background-color: ${props => props.theme.cardBackground}; 
     border-radius: 16px;
     padding: 16px;
     justify-content: center;
@@ -41,34 +41,34 @@ const IngredientsContainer = styled.View`
 const Label = styled.Text`
     font-weight: bold;
     margin-bottom: 5px;
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     font-size: 14px;
 `;
 
 const SearchInput = styled.TextInput`
     border-width: 1px;
-    border-color: ${COLORS.border};
+    border-color: ${props => props.theme.border};
     border-radius: 8px;
     padding: 12px;
-    color: ${COLORS.textLight};
-    background-color: ${COLORS.background};
+    color: ${props => props.theme.textLight};
+    background-color: ${props => props.theme.background};
     font-size: 16px;
     margin-bottom: 10px;
 `;
 
 const SelectButton = styled.TouchableOpacity`
     border-width: 1px;
-    border-color: ${COLORS.border};
+    border-color: ${props => props.theme.border};
     border-radius: 8px;
     padding: 12px;
-    background-color: ${COLORS.background};
+    background-color: ${props => props.theme.background};
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 `;
 
 const SelectButtonText = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     font-size: 16px;
 `;
 
@@ -80,7 +80,7 @@ const SelectedIngredientsContainer = styled.View`
 `;
 
 const IngredientChip = styled.View`
-    background-color: ${COLORS.accent};
+    background-color: ${props => props.theme.accent};
     padding: 8px 12px;
     border-radius: 20px;
     flex-direction: row;
@@ -89,7 +89,7 @@ const IngredientChip = styled.View`
 `;
 
 const IngredientChipText = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     font-size: 14px;
 `;
 
@@ -100,11 +100,11 @@ const RemoveButton = styled.TouchableOpacity`
 const ModalContainer = styled.View`
     flex: 1;
     justify-content: flex-end;
-    background-color: ${COLORS.modalBackdrop};
+    background-color: ${props => props.theme.modalBackdrop || 'rgba(0,0,0,0.5)'};
 `;
 
 const ModalContent = styled.View`
-    background-color: ${COLORS.cardBackground};
+    background-color: ${props => props.theme.cardBackground};
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     max-height: 70%;
@@ -117,27 +117,27 @@ const ModalHeader = styled.View`
     align-items: center;
     margin-bottom: 15px;
     border-bottom-width: 1px;
-    border-bottom-color: ${COLORS.border};
+    border-bottom-color: ${props => props.theme.border};
     padding-bottom: 10px;
 `;
 
 const ModalTitle = styled.Text`
     font-size: 18px;
     font-weight: bold;
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
 `;
 
 const IngredientItem = styled.TouchableOpacity`
     padding: 15px;
     border-bottom-width: 1px;
-    border-bottom-color: ${COLORS.border};
+    border-bottom-color: ${props => props.theme.border};
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 `;
 
 const IngredientItemText = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     font-size: 16px;
 `;
 
@@ -147,14 +147,14 @@ const LoadingContainer = styled.View`
 `;
 
 const EmptyText = styled.Text`
-    color: ${COLORS.textSecondary};
+    color: ${props => props.theme.textSecondary};
     font-size: 14px;
     text-align: center;
     padding: 20px;
 `;
 
 const CreateButton = styled.TouchableOpacity`
-    background-color: ${COLORS.accent};
+    background-color: ${props => props.theme.accent};
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 15px;
@@ -165,21 +165,21 @@ const CreateButton = styled.TouchableOpacity`
 `;
 
 const CreateButtonText = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     font-size: 16px;
     font-weight: 600;
 `;
 
 const CreateFormContainer = styled.View`
-    background-color: ${COLORS.background};
+    background-color: ${props => props.theme.background};
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 15px;
-    border: 1px solid ${COLORS.border};
+    border: 1px solid ${props => props.theme.border};
 `;
 
 const CreateFormTitle = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
@@ -187,11 +187,11 @@ const CreateFormTitle = styled.Text`
 
 const CreateInput = styled.TextInput`
     border-width: 1px;
-    border-color: ${COLORS.border};
+    border-color: ${props => props.theme.border};
     border-radius: 8px;
     padding: 12px;
-    color: ${COLORS.textLight};
-    background-color: ${COLORS.cardBackground};
+    color: ${props => props.theme.textLight};
+    background-color: ${props => props.theme.cardBackground};
     font-size: 16px;
     margin-bottom: 10px;
 `;
@@ -205,12 +205,12 @@ const CreateCancelButton = styled.TouchableOpacity`
     flex: 1;
     padding: 10px;
     border-radius: 8px;
-    background-color: ${COLORS.border};
+    background-color: ${props => props.theme.border};
     align-items: center;
 `;
 
 const CreateCancelButtonText = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     font-size: 14px;
 `;
 
@@ -218,12 +218,12 @@ const CreateConfirmButton = styled.TouchableOpacity`
     flex: 1;
     padding: 10px;
     border-radius: 8px;
-    background-color: ${COLORS.accent};
+    background-color: ${props => props.theme.accent};
     align-items: center;
 `;
 
 const CreateConfirmButtonText = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     font-size: 14px;
     font-weight: 600;
 `;
@@ -231,6 +231,7 @@ const CreateConfirmButtonText = styled.Text`
 const ReceitasFormScreen = ({ route, navigation }) => {
     const receitaExistente = route.params?.receita;
     const isEditing = !!receitaExistente;
+    const { colors } = useTheme();
 
     const [nome, setNome] = useState(receitaExistente?.nome || '');
     // Alteração 1: Estado para array de etapas
@@ -245,7 +246,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
     const [ingredientesFiltrados, setIngredientesFiltrados] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loadingIngredientes, setLoadingIngredientes] = useState(false);
-    
+
     // Estados para criação de novo ingrediente
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [novoIngredienteNome, setNovoIngredienteNome] = useState('');
@@ -254,7 +255,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
     // Carregar ingredientes ao montar o componente
     useEffect(() => {
         loadIngredientes();
-        
+
         // Alteração 2: Preencher etapas ao editar
         if (isEditing && receitaExistente?.etapas) {
             // Divide a string de etapas em um array, removendo a numeração
@@ -291,7 +292,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
 
     const handleSearch = async (text) => {
         setSearchTerm(text);
-        
+
         if (text.trim() === '') {
             setIngredientesFiltrados(allIngredientes);
             return;
@@ -299,7 +300,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
 
         // Primeiro, filtra da lista local (case-insensitive)
         const textoBusca = text.toLowerCase().trim();
-        const filtradosLocais = allIngredientes.filter(ing => 
+        const filtradosLocais = allIngredientes.filter(ing =>
             ing.nome.toLowerCase().includes(textoBusca)
         );
 
@@ -310,7 +311,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                 // Se retornar um único objeto, transforma em array
                 const resultado = Array.isArray(ingrediente) ? ingrediente : [ingrediente];
                 // Garante que todos os resultados estão em lowercase para comparação
-                const resultadoNormalizado = resultado.filter(ing => 
+                const resultadoNormalizado = resultado.filter(ing =>
                     ing.nome.toLowerCase().includes(textoBusca)
                 );
                 // Combina resultados da API com filtros locais e remove duplicatas
@@ -334,7 +335,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
         if (ingredientesSelecionados.find(ing => ing.id === ingrediente.id)) {
             return;
         }
-        
+
         setIngredientesSelecionados([...ingredientesSelecionados, ingrediente]);
         setModalVisible(false);
         setSearchTerm('');
@@ -355,7 +356,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
 
         // Verifica se já existe um ingrediente com esse nome
         const nomeNormalizado = novoIngredienteNome.toLowerCase().trim();
-        const existe = allIngredientes.some(ing => 
+        const existe = allIngredientes.some(ing =>
             ing.nome.toLowerCase() === nomeNormalizado
         );
 
@@ -370,21 +371,21 @@ const ReceitasFormScreen = ({ route, navigation }) => {
         try {
             // Cria o ingrediente com apenas o nome
             const novoIngrediente = await postIngrediente({ nome: novoIngredienteNome.trim() });
-            
+
             // Atualiza a lista de ingredientes
             const updatedIngredientes = [...allIngredientes, novoIngrediente];
             setAllIngredientes(updatedIngredientes);
             setIngredientesFiltrados(updatedIngredientes);
-            
+
             // Adiciona o novo ingrediente à lista de selecionados
             setIngredientesSelecionados([...ingredientesSelecionados, novoIngrediente]);
-            
+
             // Limpa o formulário e fecha
             setNovoIngredienteNome('');
             setShowCreateForm(false);
             setModalVisible(false);
             setSearchTerm('');
-            
+
             Alert.alert("Sucesso", "Ingrediente criado e adicionado com sucesso!");
         } catch (error) {
             console.error("Erro ao criar ingrediente:", error);
@@ -457,7 +458,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                 await postReceita(receitaData);
                 Alert.alert("Sucesso", "Receita criada com sucesso!");
             }
-            
+
             setNome('');
             setEtapasArray(['', '', '']);
             setIngredientesSelecionados([]);
@@ -473,16 +474,16 @@ const ReceitasFormScreen = ({ route, navigation }) => {
 
     const renderIngredienteItem = ({ item }) => {
         const isSelected = ingredientesSelecionados.find(ing => ing.id === item.id);
-        
+
         return (
-            <IngredientItem 
+            <IngredientItem
                 onPress={() => handleSelectIngrediente(item)}
                 disabled={!!isSelected}
                 style={{ opacity: isSelected ? 0.5 : 1 }}
             >
                 <IngredientItemText>{item.nome}</IngredientItemText>
                 {isSelected && (
-                    <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />
+                    <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
                 )}
             </IngredientItem>
         );
@@ -506,12 +507,12 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                     <Label>Ingredientes:</Label>
                     <SelectButton onPress={() => setModalVisible(true)}>
                         <SelectButtonText>
-                            {allIngredientes.length > 0 
+                            {allIngredientes.length > 0
                                 ? `Selecionar ingredientes (${ingredientesSelecionados.length} selecionados)`
                                 : 'Carregando ingredientes...'
                             }
                         </SelectButtonText>
-                        <Ionicons name="chevron-down" size={20} color={COLORS.textLight} />
+                        <Ionicons name="chevron-down" size={20} color={colors.textLight} />
                     </SelectButton>
 
                     {ingredientesSelecionados.length > 0 && (
@@ -520,7 +521,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                                 <IngredientChip key={ing.id}>
                                     <IngredientChipText>{ing.nome}</IngredientChipText>
                                     <RemoveButton onPress={() => handleRemoveIngrediente(ing.id)}>
-                                        <Ionicons name="close-circle" size={18} color={COLORS.textLight} />
+                                        <Ionicons name="close-circle" size={18} color={colors.textLight} />
                                     </RemoveButton>
                                 </IngredientChip>
                             ))}
@@ -542,7 +543,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                         </EtapaInput>
                         {etapasArray.length > 1 && (
                             <RemoveEtapaButton onPress={() => handleRemoveEtapa(index)}>
-                                <Ionicons name="remove-circle" size={24} color={COLORS.danger} />
+                                <Ionicons name="remove-circle" size={24} color={colors.danger} />
                             </RemoveEtapaButton>
                         )}
                     </EtapaInputContainer>
@@ -590,13 +591,13 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                                 setShowCreateForm(false);
                                 setNovoIngredienteNome('');
                             }}>
-                                <Ionicons name="close-circle" size={30} color={COLORS.accent} />
+                                <Ionicons name="close-circle" size={30} color={colors.accent} />
                             </TouchableOpacity>
                         </ModalHeader>
 
                         <SearchInput
                             placeholder="Buscar por nome..."
-                            placeholderTextColor={COLORS.textSecondary}
+                            placeholderTextColor={colors.textSecondary}
                             value={searchTerm}
                             onChangeText={handleSearch}
                             autoFocus
@@ -608,7 +609,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                                 setSearchTerm('');
                                 setIngredientesFiltrados(allIngredientes);
                             }}>
-                                <Ionicons name="add-circle-outline" size={20} color={COLORS.textLight} />
+                                <Ionicons name="add-circle-outline" size={20} color={colors.textLight} />
                                 <CreateButtonText>Criar Novo Ingrediente</CreateButtonText>
                             </CreateButton>
                         ) : (
@@ -616,13 +617,13 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                                 <CreateFormTitle>Criar Novo Ingrediente</CreateFormTitle>
                                 <CreateInput
                                     placeholder="Nome do ingrediente..."
-                                    placeholderTextColor={COLORS.textSecondary}
+                                    placeholderTextColor={colors.textSecondary}
                                     value={novoIngredienteNome}
                                     onChangeText={setNovoIngredienteNome}
                                     autoFocus
                                 />
                                 <CreateButtonsRow>
-                                    <CreateCancelButton 
+                                    <CreateCancelButton
                                         onPress={() => {
                                             setShowCreateForm(false);
                                             setNovoIngredienteNome('');
@@ -631,12 +632,12 @@ const ReceitasFormScreen = ({ route, navigation }) => {
                                     >
                                         <CreateCancelButtonText>Cancelar</CreateCancelButtonText>
                                     </CreateCancelButton>
-                                    <CreateConfirmButton 
+                                    <CreateConfirmButton
                                         onPress={handleCreateIngrediente}
                                         disabled={creatingIngrediente || !novoIngredienteNome.trim()}
                                     >
                                         {creatingIngrediente ? (
-                                            <ActivityIndicator size="small" color={COLORS.textLight} />
+                                            <ActivityIndicator size="small" color={colors.textLight} />
                                         ) : (
                                             <CreateConfirmButtonText>Criar</CreateConfirmButtonText>
                                         )}
@@ -647,7 +648,7 @@ const ReceitasFormScreen = ({ route, navigation }) => {
 
                         {loadingIngredientes ? (
                             <LoadingContainer>
-                                <ActivityIndicator size="large" color={COLORS.primary} />
+                                <ActivityIndicator size="large" color={colors.primary} />
                             </LoadingContainer>
                         ) : !showCreateForm && (
                             <FlatList

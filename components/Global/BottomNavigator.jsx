@@ -4,21 +4,31 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ReceitasStack from '../../navigation/ReceitasStack';
 import UserStack from '../../navigation/UserStack';
-import { COLORS } from '../../constants/Colors';
+import { useTheme } from '../../services/ThemeContext';
 import MetasScreen from '../../screens/MetasScreen';
 import MetasStack from '../../navigation/MetasStack';
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomNavigator() {
+    const { colors } = useTheme();
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
-                tabBarStyle: styles.tabBar,
-                tabBarLabelStyle: styles.tabBarLabel,
-                tabBarActiveTintColor: COLORS.activeTab,   // cor ativa
-                tabBarInactiveTintColor: COLORS.inactiveTab, // cor inativa
+                tabBarStyle: {
+                    backgroundColor: colors.tabBarBackground,
+                    borderTopWidth: 0,
+                    height: 60,
+                },
+                tabBarLabelStyle: {
+                    color: colors.textLight,
+                    fontSize: 12,
+                    fontWeight: "600",
+                },
+                tabBarActiveTintColor: colors.activeTab,
+                tabBarInactiveTintColor: colors.inactiveTab,
 
                 tabBarIcon: ({ color, size }) => {
                     let iconName;
@@ -31,7 +41,7 @@ export default function BottomNavigator() {
                     }
                     if (route.name === 'Metas')
                         iconName = 'clipboard'
-                    
+
 
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
@@ -60,17 +70,3 @@ export default function BottomNavigator() {
         </Tab.Navigator>
     );
 }
-
-
-const styles = StyleSheet.create({
-    tabBar: {
-        backgroundColor: COLORS.tabBarBackground,
-        borderTopWidth: 0,
-        height: 60,
-    },
-    tabBarLabel: {
-        color: COLORS.textLight,
-        fontSize: 12,
-        fontWeight: "600",
-    },
-});

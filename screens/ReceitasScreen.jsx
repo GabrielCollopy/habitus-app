@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
 import ReceitasList from '../components/Receitas/ReceitasList';
-import { COLORS } from '../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../services/ThemeContext';
 
 const SearchContainer = styled.View`
   flex-direction: row;
   align-items: center;
-  background-color: ${COLORS.cardBackground};
+  background-color: ${props => props.theme.cardBackground};
   border-radius: 20px;
   padding-horizontal: 15px;
   margin-bottom: 15px;
@@ -17,44 +17,44 @@ const SearchContainer = styled.View`
 const SearchBar = styled.TextInput`
   flex: 1;
   height:45px;
-  color: ${COLORS.textLight};
-  padding-left: 10px; /* Espaço entre o ícone e o texto */
+  color: ${props => props.theme.textLight};
+  padding-left: 10px;
   font-size: 16px;
+`;
+
+const ScreenContainer = styled.View`
+    flex: 1;
+    background-color: ${props => props.theme.background};
+`;
+
+const SearchWrapper = styled.View`
+    padding-horizontal: 16px;
+    padding-vertical: 10px;
+    background-color: ${props => props.theme.background};
 `;
 
 const ReceitasScreen = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const { colors } = useTheme();
 
     return (
-        <View style={styles.container}>
-            <View style={styles.searchWrapper}>
+        <ScreenContainer>
+            <SearchWrapper>
                 <SearchContainer>
-                    <Ionicons name="search" size={20} color={`${COLORS.textLight}80`} />
-                <SearchBar
-                    placeholder="Buscar receita pelo nome..."
-                    placeholderTextColor={`${COLORS.textLight}80`} // Cor com opacidade
-                    value={searchTerm}
-                    onChangeText={setSearchTerm}
-                    returnKeyType="search"
-                    clearButtonMode="while-editing"
-                />
+                    <Ionicons name="search" size={20} color={`${colors.textLight}80`} />
+                    <SearchBar
+                        placeholder="Buscar receita pelo nome..."
+                        placeholderTextColor={`${colors.textLight}80`}
+                        value={searchTerm}
+                        onChangeText={setSearchTerm}
+                        returnKeyType="search"
+                        clearButtonMode="while-editing"
+                    />
                 </SearchContainer>
-            </View>
+            </SearchWrapper>
             <ReceitasList searchTerm={searchTerm} />
-        </View>
+        </ScreenContainer>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    searchWrapper: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        backgroundColor: COLORS.background,
-    },
-});
 
 export default ReceitasScreen;

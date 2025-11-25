@@ -1,40 +1,49 @@
 import React, { useState, useCallback } from 'react';
-import { Alert, TouchableOpacity, View } from 'react-native';
+import { FlatList, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../constants/Colors';
-import { getReceitasByUser, deleteReceita } from '../../services/ReceitasService'; // Service das receitas
-import { getAuthenticatedUser } from '../../services/UserService'; // Service do usuário
+import { getReceitasByUser, deleteReceita } from '../../services/ReceitasService';
+import { getAuthenticatedUser } from '../../services/UserService';
+import { useTheme } from '../../services/ThemeContext';
 
-const Container = styled.View``;
+const Container = styled.View`
+  flex: 1;
+  padding: 0 16px;
+`;
 
 const ReceitaItem = styled.View`
   flex-direction: row;
   align-items: center;
-  background-color: ${COLORS.cardBackground};
+  background-color: ${props => props.theme.cardBackground};
   border-radius: 8px;
   padding: 12px;
-  margin-bottom: 12px;
+  margin: 8px 0;
+  border: 1px solid ${props => props.theme.border || 'transparent'};
 `;
 
-const MainContent = styled.View`
+const ReceitaContent = styled.View`
   flex: 1;
 `;
 
 const ReceitaTitle = styled.Text`
-  color: ${COLORS.textLight};
-  font-size: 17px;
+  color: ${props => props.theme.textLight};
+  font-size: 18px;
   font-weight: bold;
+`;
+
+const ReceitaDescription = styled.Text`
+  color: ${props => props.theme.textSecondary};
+  font-size: 14px;
+  margin: 4px 0;
 `;
 
 const ActionsContainer = styled.View`
   flex-direction: row;
-  align-items: center; /* Alinha os ícones verticalmente */
 `;
 
 const EmptyText = styled.Text`
-  color: ${COLORS.textSecondary};
+  color: ${props => props.theme.textSecondary};
   text-align: center;
   margin-top: 50px;
   font-size: 16px;
@@ -43,17 +52,17 @@ const EmptyText = styled.Text`
 const UserReceitasList = () => {
   const [receitas, setReceitas] = useState([]);
   const navigation = useNavigation();
+  const { colors } = useTheme();
 
   const loadReceitas = async () => {
     try {
-      // 1. Obter o usuário autenticado para pegar seu ID
       const user = await getAuthenticatedUser();
-      // 2. Passar o ID do usuário para a função de busca
-      const data = await getReceitasByUser(user.id);
-      setReceitas(data);
+      if (user) {
+        const data = await getReceitasByUser(user.id);
+        setReceitas(data);
+      }
     } catch (error) {
-      console.error('Falha ao carregar as receitas do usuário:', error);
-      Alert.alert("Erro", "Não foi possível carregar suas receitas.");
+      console.error('Falha ao carregar receitas:', error);
     }
   };
 
@@ -63,44 +72,55 @@ const UserReceitasList = () => {
     }, [])
   );
 
-  const handleDelete = (id) => {
-    Alert.alert("Confirmar Exclusão", "Deseja realmente excluir esta receita?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteReceita(id);
-            setReceitas(prev => prev.filter(r => r.id !== id));
-            Alert.alert('Sucesso', 'Receita excluída!');
-          } catch (error) {
-            console.error('Falha ao deletar receita:', error);
+  const handleDelete = async (id) => {
+    Alert.alert(
+      "Excluir Receita",
+      "Tem certeza que deseja excluir esta receita?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteReceita(id);
+              setReceitas(prev => prev.filter(item => item.id !== id));
+              Alert.alert('Sucesso', 'Receita excluída!');
+            } catch (error) {
+              console.error('Falha ao deletar receita:', error);
+              Alert.alert('Erro', 'Não foi possível excluir a receita.');
+            }
           }
-        },
-      },
-    ]);
+        }
+      ]
+    );
   };
 
   const handleEdit = (item) => {
-    // Correção para o erro de navegação:
-    // Navega para o Stack que contém o formulário e passa a tela e os parâmetros desejados.
-    // Isso ajuda o React Navigation a encontrar o caminho correto entre diferentes stacks (ex: de uma aba para outra).
-    // Assumindo que 'Receitas' é o nome da rota no seu navegador principal que leva ao ReceitasStack.
-    navigation.navigate('Receitas', { screen: 'ReceitasForm', params: { receita: item } });
+    navigation.navigate('Receitas', {
+      screen: 'ReceitasForm',
+      params: { receita: item }
+    });
   };
 
   const renderItem = ({ item }) => (
     <ReceitaItem>
-      {/* Conteúdo principal com o título da receita */}
-      <MainContent>
+      <ReceitaContent>
         <ReceitaTitle>{item.nome}</ReceitaTitle>
-      </MainContent>
+        <ReceitaDescription numberOfLines={1}>
+          {item.ingredientes && Array.isArray(item.ingredientes)
+            ? `${item.ingredientes.length} ingredientes`
+            : 'Ver detalhes'}
+        </ReceitaDescription>
+      </ReceitaContent>
 
-      {/* Botões de ação (editar e excluir) */}
       <ActionsContainer>
-        <TouchableOpacity onPress={() => handleEdit(item)}><Ionicons name="create-outline" size={22} color={COLORS.accent} /></TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDelete(item.id)} style={{ marginLeft: 20 }}><Ionicons name="trash-outline" size={22} color={COLORS.danger} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => handleEdit(item)}>
+          <Ionicons name="create-outline" size={22} color={colors.accent} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDelete(item.id)} style={{ marginLeft: 20 }}>
+          <Ionicons name="trash-outline" size={22} color={colors.danger} />
+        </TouchableOpacity>
       </ActionsContainer>
     </ReceitaItem>
   );
@@ -108,14 +128,14 @@ const UserReceitasList = () => {
   return (
     <Container>
       {receitas.length === 0 ? (
-        <EmptyText>Você ainda não cadastrou nenhuma receita.</EmptyText>
+        <EmptyText>Você ainda não criou nenhuma receita.</EmptyText>
       ) : (
-        // Correção para o erro de VirtualizedList:
-        // Removemos a FlatList e mapeamos os itens diretamente.
-        // A rolagem já é fornecida pelo KeyboardAwareScrollView na UserScreen.
-        receitas.map(item => (
-          <View key={item.id.toString()}>{renderItem({ item })}</View>
-        ))
+        <FlatList
+          data={receitas}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          scrollEnabled={false}
+        />
       )}
     </Container>
   );

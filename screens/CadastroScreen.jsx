@@ -5,13 +5,13 @@ import styled from 'styled-components/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomTextInput from '../components/Global/CustomTextInput';
 import { createUser } from '../services/UserService';
-import { COLORS } from '../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../services/AuthContext';
+import { useTheme } from '../services/ThemeContext';
 
 // Botão estilizado para ser consistente com o resto do app
 const StyledButton = styled.TouchableOpacity`
-    background-color: ${props => props.disabled ? COLORS.textSecondary : COLORS.primary};
+    background-color: ${props => props.disabled ? props.theme.textSecondary : props.theme.primary};
     padding: 14px 25px;
     border-radius: 10px;
     align-items: center;
@@ -19,20 +19,20 @@ const StyledButton = styled.TouchableOpacity`
 `;
 
 const ButtonText = styled.Text`
-    color: ${COLORS.accent};
+    color: ${props => props.theme.accent};
     font-size: 18px;
     font-weight: bold;
 `;
 
 const ScreenContainer = styled.View`
     flex: 1;
-    background-color: ${COLORS.background};
+    background-color: ${props => props.theme.background};
     padding: 24px;
 `;
 
 const FormWrapper = styled.View`
     padding: 20px;
-    background-color: ${COLORS.cardBackground};
+    background-color: ${props => props.theme.cardBackground};
     border-radius: 12px;
     margin-top: 50px;
 `;
@@ -40,19 +40,20 @@ const FormWrapper = styled.View`
 const Title = styled.Text`
     font-size: 28px;
     font-weight: bold;
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     margin-bottom: 20px;
     text-align: center;
 `;
 
 const Subtitle = styled.Text`
-    color: ${COLORS.textLight};
+    color: ${props => props.theme.textLight};
     text-align: center;
     margin-bottom: 20px;
 `;
 
 const CadastroScreen = () => {
     const { login } = useAuth();
+    const { colors } = useTheme();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -66,13 +67,13 @@ const CadastroScreen = () => {
             Alert.alert('Erro', 'As senhas não coincidem.');
             return;
         }
-        if(!username || !email || !password) {
+        if (!username || !email || !password) {
             Alert.alert('Erro', 'Por favor, preencha todos os campos.');
             return;
         }
         setLoading(true);
         try {
-            await createUser({ username, email, password, confirmPassword});
+            await createUser({ username, email, password, confirmPassword });
             // Após o cadastro, faz o login automático do usuário
             await login(username, password);
         } catch (error) {
@@ -85,7 +86,7 @@ const CadastroScreen = () => {
 
     return (
         <ScreenContainer>
-            <KeyboardAwareScrollView 
+            <KeyboardAwareScrollView
                 style={{ flex: 1 }}
                 contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
                 keyboardShouldPersistTaps="handled"
@@ -99,7 +100,7 @@ const CadastroScreen = () => {
                         label="Nome de Usuário"
                         value={username}
                         onChangeText={setUsername}
-                        placeholder ="Seu nome"
+                        placeholder="Seu nome"
                         autoCapitalize="none"
                     />
 
@@ -120,10 +121,10 @@ const CadastroScreen = () => {
                         secureTextEntry={!isPasswordVisible}
                         icon={
                             <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={{ padding: 10 }}>
-                                <Ionicons 
-                                    name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
-                                    size={22} 
-                                    color={COLORS.textSecondary} 
+                                <Ionicons
+                                    name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
+                                    size={22}
+                                    color={colors.textSecondary}
                                 />
                             </TouchableOpacity>
                         }
@@ -137,10 +138,10 @@ const CadastroScreen = () => {
                         secureTextEntry={!isConfirmPasswordVisible}
                         icon={
                             <TouchableOpacity onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)} style={{ padding: 10 }}>
-                                <Ionicons 
-                                    name={isConfirmPasswordVisible ? "eye-off-outline" : "eye-outline"} 
-                                    size={22} 
-                                    color={COLORS.textSecondary} 
+                                <Ionicons
+                                    name={isConfirmPasswordVisible ? "eye-off-outline" : "eye-outline"}
+                                    size={22}
+                                    color={colors.textSecondary}
                                 />
                             </TouchableOpacity>
                         }

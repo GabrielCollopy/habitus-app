@@ -2,25 +2,26 @@ import React, { useState, useCallback } from 'react';
 import { FlatList, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
-import { COLORS } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 // Importe as funções do seu service
 import { getMetas, deleteMeta } from '../../services/MetasService'; // Ajuste o caminho se necessário
 import { getAuthenticatedUser } from '../../services/UserService';
+import { useTheme } from '../../services/ThemeContext';
 
 const Container = styled.View`
   flex: 1;
-  background-color: ${COLORS.background};
+  background-color: ${props => props.theme.background};
   padding: 0 16px;
 `;
 
 const MetaItem = styled.View`
   flex-direction: row;
   align-items: center;
-  background-color: ${COLORS.cardBackground}; /* Usando cor do tema */
+  background-color: ${props => props.theme.cardBackground};
   border-radius: 8px;
   padding: 12px;
   margin: 8px 0;
+  border: 1px solid ${props => props.theme.border || 'transparent'};
 `;
 
 const MetaContent = styled.View`
@@ -28,19 +29,19 @@ const MetaContent = styled.View`
 `;
 
 const MetaTitle = styled.Text`
-  color: ${COLORS.textLight};
+  color: ${props => props.theme.textLight};
   font-size: 18px;
   font-weight: bold;
 `;
 
 const MetaDescription = styled.Text`
-  color: ${COLORS.textSecondary}; /* Usando cor do tema */
+  color: ${props => props.theme.textSecondary};
   font-size: 14px;
   margin: 4px 0;
 `;
 
 const MetaStatus = styled.Text`
-  color: ${COLORS.accent};
+  color: ${props => props.theme.accent};
   font-weight: bold;
 `;
 
@@ -49,7 +50,7 @@ const ActionsContainer = styled.View`
 `;
 
 const EmptyText = styled.Text`
-  color: ${COLORS.textSecondary}; /* Usando cor do tema */
+  color: ${props => props.theme.textSecondary};
   text-align: center;
   margin-top: 50px;
   font-size: 16px;
@@ -58,6 +59,7 @@ const EmptyText = styled.Text`
 const MetasList = () => { // Removido refreshTrigger, pois usaremos useFocusEffect
   const [metas, setMetas] = useState([]);
   const navigation = useNavigation();
+  const { colors } = useTheme();
 
   const loadMetas = async () => {
     try {
@@ -104,11 +106,11 @@ const MetasList = () => { // Removido refreshTrigger, pois usaremos useFocusEffe
 
       <ActionsContainer>
         <TouchableOpacity onPress={() => handleEdit(item)}>
-          <Ionicons name="create-outline" size={22} color={COLORS.accent} />
+          <Ionicons name="create-outline" size={22} color={colors.accent} />
         </TouchableOpacity>
         {/* Adiciona margem para criar espaçamento, substituindo a propriedade 'gap' */}
         <TouchableOpacity onPress={() => handleDelete(item.id)} style={{ marginLeft: 15 }}>
-          <Ionicons name="trash-outline" size={22} color={COLORS.primary} />
+          <Ionicons name="trash-outline" size={22} color={colors.primary} />
         </TouchableOpacity>
       </ActionsContainer>
     </MetaItem>

@@ -1,43 +1,47 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
-import { COLORS } from '../../constants/Colors';
+import { useTheme } from '../../services/ThemeContext';
 
-const Container = styled.TouchableOpacity`
-  background-color: ${(props) => {
-    if (props.disabled) return '#A9A9A9';
-    if (props.secondary) return 'transparent';
-    return '#C5FF0D';
-  }};
-  padding: 12px 20px;
+const ButtonContainer = styled.TouchableOpacity`
+  width: 100%;
+  padding: 15px;
   border-radius: 8px;
   align-items: center;
   justify-content: center;
-  min-width: 150px;
-  margin-bottom: 10px;
-  border: ${(props) => props.secondary ? `2px solid ${props.borderColor || COLORS.primary}` : 'none'};
+  background-color: ${(props) => props.secondary ? 'transparent' : (props.backgroundColor || props.theme.primary)};
+  border: ${(props) => props.secondary ? `2px solid ${props.borderColor || props.theme.primary}` : 'none'};
+  margin-top: 10px;
+  opacity: ${(props) => props.disabled ? 0.6 : 1};
 `;
 
 const ButtonText = styled.Text`
-  color: ${(props) => props.textColor || (props.secondary ? COLORS.primary : 'white')};
   font-size: 16px;
   font-weight: bold;
+  color: ${(props) => props.textColor || (props.secondary ? props.theme.primary : props.theme.background)};
+  ${(props) => props.secondary && props.theme.primaryTextShadow && `
+    text-shadow-color: ${props.theme.primaryTextShadow.textShadowColor};
+    text-shadow-offset: ${props.theme.primaryTextShadow.textShadowOffset.width}px ${props.theme.primaryTextShadow.textShadowOffset.height}px;
+    text-shadow-radius: ${props.theme.primaryTextShadow.textShadowRadius}px;
+  `}
 `;
 
-const Button = ({ title, onPress, disabled = false, style, secondary = false, textColor, borderColor, ...props }) => {
-  return (
-    <Container
-      onPress={onPress}
-      activeOpacity={0.7}
-      style={style}
-      disabled={disabled}
-      secondary={secondary}
-      borderColor={borderColor}
-      {...props}
-    >
-      <ButtonText secondary={secondary} textColor={textColor}>{title}</ButtonText>
-    </Container>
-  )
-}
+const CustomButton = ({ title, onPress, secondary, backgroundColor, textColor, borderColor, disabled, style, textStyle }) => {
+  const { theme } = useTheme(); // Access theme to pass explicitly if needed, though styled-components handles it via context
 
-export default Button;
+  return (
+    <ButtonContainer
+      onPress={onPress}
+      secondary={secondary}
+      backgroundColor={backgroundColor}
+      borderColor={borderColor}
+      disabled={disabled}
+      style={style}
+    >
+      <ButtonText secondary={secondary} textColor={textColor} style={textStyle}>
+        {title}
+      </ButtonText>
+    </ButtonContainer>
+  );
+};
+
+export default CustomButton;

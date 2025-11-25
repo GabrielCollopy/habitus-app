@@ -1,51 +1,38 @@
 import React from 'react';
-import { View } from 'react-native';
-import styled from "styled-components/native";
-import { COLORS } from '../../constants/Colors';
+import styled from 'styled-components/native';
+import { useTheme } from '../../services/ThemeContext';
 
 const InputContainer = styled.View`
-  width: 100%;
-  margin-bottom: 15px;
-`;
-
-const InputWrapper = styled.View`
-    flex-direction: row;
-    align-items: center;
-    border: 1px solid ${COLORS.border};
-    border-radius: 8px;
-    background-color: ${COLORS.background};
+    margin-bottom: 15px;
+    width: 100%;
 `;
 
 const Label = styled.Text`
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: ${COLORS.textLight};
-  font-size: 14px;
-`;
-
-const StyledInput = styled.TextInput.attrs(props => ({
-    placeholderTextColor: props.placeholderTextColor || COLORS.textSecondary,
-}))`
-    flex: 1;
-    padding: 12px;
-    color: ${COLORS.textLight};
     font-size: 16px;
+    margin-bottom: 5px;
+    color: ${props => props.theme.textLight};
+    font-weight: bold;
 `;
 
-const CustomTextInput = ({ label, multiline, icon, ...props}) => {
+const StyledInput = styled.TextInput`
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid ${props => props.theme.border};
+    font-size: 16px;
+    background-color: ${props => props.theme.background};
+    color: ${props => props.theme.textLight};
+`;
+
+const CustomTextInput = ({ label, ...props }) => {
+    const { colors } = useTheme();
     return (
         <InputContainer>
             {label && <Label>{label}</Label>}
-            <InputWrapper>
-                <StyledInput
-                    {...props}
-                    multiline={multiline}
-                    // Aplica altura mínima e alinhamento para campos de várias linhas
-                    style={multiline ? { minHeight: 100, textAlignVertical: 'top' } : {}}
-                />
-                {/* Renderiza o ícone se ele for passado como propriedade */}
-                {icon}
-            </InputWrapper>
+            <StyledInput
+                {...props}
+                placeholderTextColor={props.placeholderTextColor || colors.textSecondary}
+            />
         </InputContainer>
     );
 };

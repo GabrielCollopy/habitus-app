@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, TextInput, Alert } from 'react-native';
 import styled from 'styled-components/native';
 import { Ionicons } from '@expo/vector-icons';
-import { getComentariosByReceita } from '../../services/ComentariosService';
-import { getUserById } from '../../services/UserService';
-import { COLORS } from '../../constants/Colors';
+import { getComentariosByReceita, createComentario } from '../../services/ComentariosService';
+import { getUserById, getAuthenticatedUser } from '../../services/UserService';
+import { useTheme } from '../../services/ThemeContext';
 
 const Container = styled.View`
   margin-top: 15px;
   padding-top: 10px;
   border-top-width: 1px;
-  border-top-color: rgba(255, 255, 255, 0.1);
+  border-top-color: ${props => props.theme.border || 'rgba(255, 255, 255, 0.1)'};
 `;
 
 const Header = styled.TouchableOpacity`
@@ -23,39 +23,70 @@ const Header = styled.TouchableOpacity`
 const SectionTitle = styled.Text`
   font-size: 16px;
   font-weight: bold;
-  color: ${COLORS.textLight};
+  color: ${props => props.theme.textLight};
 `;
 
 const CommentItem = styled.View`
   margin-bottom: 10px;
   padding: 8px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: ${props => props.theme.cardBackground};
   border-radius: 8px;
+  border: 1px solid ${props => props.theme.border || 'transparent'};
 `;
 
 const UsernameText = styled.Text`
-  color: ${COLORS.primary};
+  color: ${props => props.theme.primary};
+  ${props => props.theme.primaryTextShadow && `
+    text-shadow-color: ${props.theme.primaryTextShadow.textShadowColor};
+    text-shadow-offset: ${props.theme.primaryTextShadow.textShadowOffset.width}px ${props.theme.primaryTextShadow.textShadowOffset.height}px;
+    text-shadow-radius: ${props.theme.primaryTextShadow.textShadowRadius}px;
+  `}
   font-size: 12px;
   font-weight: bold;
   margin-bottom: 2px;
 `;
 
 const CommentText = styled.Text`
-  color: ${COLORS.textLight};
+  color: ${props => props.theme.textLight};
   font-size: 14px;
 `;
 
 const NoCommentsText = styled.Text`
-  color: ${COLORS.textLight};
+  color: ${props => props.theme.textLight};
   font-style: italic;
   font-size: 14px;
   margin-top: 5px;
 `;
 
 const ErrorText = styled.Text`
-  color: ${COLORS.error || 'red'};
+  color: ${props => props.theme.danger || 'red'};
   font-size: 14px;
   margin-top: 5px;
+`;
+
+const InputContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+`;
+
+const CommentInput = styled.TextInput`
+  flex: 1;
+  background-color: ${props => props.theme.background};
+  color: ${props => props.theme.textLight};
+  padding: 10px;
+  border-radius: 20px;
+  margin-right: 10px;
+  border: 1px solid ${props => props.theme.border || 'transparent'};
+`;
+
+const SendButton = styled.TouchableOpacity`
+  background-color: ${props => props.theme.primary};
+  padding: 10px;
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
 `;
 
 const CommentItemWithUser = ({ comentario }) => {
@@ -102,42 +133,76 @@ export default function ComentariosReceita({ receitaId }) {
     const [error, setError] = useState(null);
     const [expanded, setExpanded] = useState(false);
     const [fetched, setFetched] = useState(false);
+    const [newComment, setNewComment] = useState("");
+    const [currentUser, setCurrentUser] = useState(null);
+    const [posting, setPosting] = useState(false);
+    const { colors } = useTheme();
 
     const toggleExpanded = () => {
         setExpanded(!expanded);
     };
 
     useEffect(() => {
-        let isMounted = true;
-
-        const fetchComentarios = async () => {
-            if (!expanded || fetched) return;
-
-            setLoading(true);
+        const fetchCurrentUser = async () => {
             try {
-                const data = await getComentariosByReceita(receitaId);
-                if (isMounted) {
-                    setComentarios(data);
-                    setFetched(true);
-                }
-            } catch (err) {
-                if (isMounted) {
-                    console.error("Erro ao carregar comentários:", err);
-                    setError("Não foi possível carregar os comentários.");
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
+                const user = await getAuthenticatedUser();
+                setCurrentUser(user);
+            } catch (error) {
+                console.error("Erro ao buscar usuário logado:", error);
             }
         };
+        fetchCurrentUser();
+    }, []);
 
-        fetchComentarios();
+    const fetchComentarios = async () => {
+        setLoading(true);
+        try {
+            const data = await getComentariosByReceita(receitaId);
+            setComentarios(data);
+            setFetched(true);
+            setError(null);
+        } catch (err) {
+            console.error("Erro ao carregar comentários:", err);
+            setError("Não foi possível carregar os comentários.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        return () => {
-            isMounted = false;
-        };
+    useEffect(() => {
+        if (expanded && !fetched) {
+            fetchComentarios();
+        }
     }, [expanded, receitaId, fetched]);
+
+    const handlePostComment = async () => {
+        if (!newComment.trim()) {
+            Alert.alert("Erro", "O comentário não pode estar vazio.");
+            return;
+        }
+
+        if (!currentUser) {
+            Alert.alert("Erro", "Você precisa estar logado para comentar.");
+            return;
+        }
+
+        setPosting(true);
+        try {
+            const comentarioData = {
+                receitaId: receitaId,
+                userId: currentUser.id,
+                conteudo: newComment
+            };
+            await createComentario(comentarioData);
+            setNewComment("");
+            await fetchComentarios();
+        } catch (error) {
+            console.error("Erro ao postar comentário:", error);
+            Alert.alert("Erro", "Não foi possível postar o comentário.");
+        } finally {
+            setPosting(false);
+        }
+    };
 
     return (
         <Container>
@@ -146,24 +211,45 @@ export default function ComentariosReceita({ receitaId }) {
                 <Ionicons
                     name={expanded ? "chevron-up" : "chevron-down"}
                     size={20}
-                    color={COLORS.textLight}
+                    color={colors.textLight}
                 />
             </Header>
 
             {expanded && (
                 <View>
-                    {loading ? (
-                        <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 10 }} />
+                    {loading && !fetched ? (
+                        <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 10 }} />
                     ) : error ? (
                         <ErrorText>{error}</ErrorText>
-                    ) : comentarios && comentarios.length > 0 ? (
-                        <View style={{ marginTop: 10 }}>
-                            {comentarios.map((comentario) => (
-                                <CommentItemWithUser key={comentario.id || Math.random()} comentario={comentario} />
-                            ))}
-                        </View>
                     ) : (
-                        <NoCommentsText>Nenhum comentário ainda.</NoCommentsText>
+                        <View style={{ marginTop: 10 }}>
+                            {currentUser && (
+                                <InputContainer>
+                                    <CommentInput
+                                        placeholder="Adicione um comentário..."
+                                        placeholderTextColor={colors.textLight + "80"}
+                                        value={newComment}
+                                        onChangeText={setNewComment}
+                                        multiline
+                                    />
+                                    <SendButton onPress={handlePostComment} disabled={posting}>
+                                        {posting ? (
+                                            <ActivityIndicator size="small" color="#FFF" />
+                                        ) : (
+                                            <Ionicons name="send" size={20} color="#FFF" />
+                                        )}
+                                    </SendButton>
+                                </InputContainer>
+                            )}
+
+                            {comentarios && comentarios.length > 0 ? (
+                                comentarios.map((comentario) => (
+                                    <CommentItemWithUser key={comentario.id || Math.random()} comentario={comentario} />
+                                ))
+                            ) : (
+                                <NoCommentsText>Nenhum comentário ainda. Seja o primeiro!</NoCommentsText>
+                            )}
+                        </View>
                     )}
                 </View>
             )}

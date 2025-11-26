@@ -28,7 +28,7 @@ const LoadingContainer = styled.View`
     background-color: ${props => props.theme.background};
 `;
 
-export default function ReceitasList({ searchTerm, scrollEnabled = true }) {
+export default function ReceitasList({ searchTerm, scrollEnabled = true, receitas: externalReceitas }) {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const { colors } = useTheme();
@@ -40,6 +40,12 @@ export default function ReceitasList({ searchTerm, scrollEnabled = true }) {
 
 
   const loadData = async () => {
+    if (externalReceitas) {
+      setReceitas(externalReceitas);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       let data;
@@ -58,10 +64,10 @@ export default function ReceitasList({ searchTerm, scrollEnabled = true }) {
   };
 
   useEffect(() => {
-    if (isFocused) {
+    if (isFocused || externalReceitas) {
       loadData();
     }
-  }, [isFocused, searchTerm]);
+  }, [isFocused, searchTerm, externalReceitas]);
 
   const handleDelete = (id) => {
     Alert.alert(
